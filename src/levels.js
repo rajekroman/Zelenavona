@@ -47,6 +47,26 @@ export const LEVELS = Object.freeze({
       { step: 1, target: "search", radius: 145, kind: "search", label: "PROHLÉDNOUT" },
       { step: 2, target: "finding", radius: 105, kind: "collect", label: "SEBRAT" }
     ]
+  }),
+  besednice: Object.freeze({
+    id: "besednice",
+    number: 3,
+    label: "BESEDNICE",
+    title: "Besednice",
+    plate: "./assets/besednice/besednice-v7-plate.svg",
+    foreground: "./assets/besednice/besednice-v7-foreground.svg",
+    spawn: { x: 470, y: 1110 },
+    npc: { id: "pitkeeper", x: 760, y: 1000 },
+    search: { x: 1220, y: 825 },
+    finding: { x: 1480, y: 760 },
+    speed: 212,
+    minY: 390,
+    objectives: ["Promluv se správcem", "Najdi čerstvý jílový řez", "Prohledej štěrkovou kapsu", "Besednice dokončena"],
+    actions: [
+      { step: 0, target: "npc", radius: 108, kind: "talk", label: "MLUVIT" },
+      { step: 1, target: "search", radius: 150, kind: "search", label: "PROHLÉDNOUT" },
+      { step: 2, target: "finding", radius: 110, kind: "collect", label: "SEBRAT" }
+    ]
   })
 });
 
