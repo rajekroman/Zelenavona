@@ -1,0 +1,34 @@
+name: Chlum Visual QA
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - name: Install Playwright
+        run: |
+          npm install --no-save --no-audit --no-fund @playwright/test
+          npx playwright install --with-deps chromium
+      - name: Desktop + iPhone visual smoke
+        run: npx playwright test -c playwright.config.mjs
+      - name: Upload visual evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v5
+        with:
+          name: chlum-visual-evidence
+          path: |
+            test-results/
+            playwright-report/
+          if-no-files-found: ignore
+          retention-days: 14
