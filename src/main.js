@@ -1,18 +1,20 @@
 import { FollowCamera } from "./camera.js";
-import { WORLD, CHLUM, clampPlayer, availableAction, objectiveForStep } from "./world.js";
+import { ACTOR_STATE, ActorAnimator } from "./animation.js";
 import { CHLUM_PLATE } from "./plateData.js";
+import { WORLD, CHLUM, clampPlayer, availableAction, objectiveForStep } from "./world.js";
 
-const canvas = document.querySelector("#game");
+const $ = selector => document.querySelector(selector);
+const canvas = $("#game");
 const ctx = canvas.getContext("2d", { alpha: false });
-const objective = document.querySelector("#objective");
-const prompt = document.querySelector("#prompt");
-const promptText = document.querySelector("#promptText");
-const actionButton = document.querySelector("#actionButton");
-const actionLabel = document.querySelector("#actionLabel");
-const moveZone = document.querySelector("#moveZone");
-const stick = document.querySelector("#stick");
-const toast = document.querySelector("#toast");
-const loading = document.querySelector("#loading");
+const objective = $("#objective");
+const prompt = $("#prompt");
+const promptText = $("#promptText");
+const actionButton = $("#actionButton");
+const actionLabel = $("#actionLabel");
+const moveZone = $("#moveZone");
+const stick = $("#stick");
+const toast = $("#toast");
+const loading = $("#loading");
 
 const state = {
   player: { ...CHLUM.spawn, facingX: 0, facingY: 1, moving: false },
@@ -21,15 +23,15 @@ const state = {
   paused: false,
   keys: new Set(),
   touchMove: { x: 0, y: 0 },
-  action: null,
-  findingPulse: 0
+  action: null
 };
 
+const playerAnimator = new ActorAnimator();
 const camera = new FollowCamera({ worldWidth: WORLD.width, worldHeight: WORLD.height, damping: 7.5, deadZone: 82 });
 const plate = new Image();
 let plateReady = false;
 plate.onload = () => { plateReady = true; loading.classList.add("hidden"); };
-plate.onerror = () => { loading.classList.add("hidden"); };
+plate.onerror = () => loading.classList.add("hidden");
 plate.src = CHLUM_PLATE;
 setTimeout(() => loading.classList.add("hidden"), 1800);
 
@@ -42,7 +44,6 @@ function resize() {
   canvas.height = Math.round(viewport.height * dpr);
   canvas.style.width = `${viewport.width}px`;
   canvas.style.height = `${viewport.height}px`;
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   camera.clamp(viewport);
 }
 addEventListener("resize", resize, { passive: true });
@@ -56,128 +57,170 @@ function showToast(text) {
 }
 
 function drawFallbackPlate() {
-  const top = 0;
-  const villageH = 420;
-  const sky = ctx.createLinearGradient(0, top, 0, WORLD.height);
-  sky.addColorStop(0, "#77808a");
-  sky.addColorStop(.25, "#9da49d");
-  sky.addColorStop(.30, "#5f7757");
-  sky.addColorStop(.47, "#32482f");
-  sky.addColorStop(.48, "#33281e");
-  sky.addColorStop(1, "#211a14");
+  const sky = ctx.createLinearGradient(0, 0, 0, WORLD.height);
+  sky.addColorStop(0, "#7d8790");
+  sky.addColorStop(.27, "#9ea59d");
+  sky.addColorStop(.34, "#4c6547");
+  sky.addColorStop(.49, "#2d452d");
+  sky.addColorStop(.5, "#392d22");
+  sky.addColorStop(1, "#211913");
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, WORLD.width, WORLD.height);
 
-  ctx.fillStyle = "#506545";
-  for (let i = 0; i < 34; i++) {
-    const x = i * 70 + (i % 3) * 18;
-    const h = 55 + (i % 5) * 12;
+  ctx.fillStyle = "#536c4b";
+  for (let i = 0; i < 30; i++) {
     ctx.beginPath();
-    ctx.arc(x, villageH - 10, h, Math.PI, 0);
+    ctx.arc(i * 72, 415 - (i % 4) * 9, 65 + (i % 3) * 13, Math.PI, 0);
     ctx.fill();
   }
 
-  ctx.fillStyle = "#d5c8a3";
-  for (let i = 0; i < 15; i++) {
-    const x = 180 + i * 105;
-    const y = 235 + (i % 3) * 35;
-    ctx.fillRect(x, y, 44, 32);
-    ctx.fillStyle = i % 2 ? "#985f3d" : "#7d4b34";
-    ctx.beginPath();ctx.moveTo(x-4,y);ctx.lineTo(x+22,y-22);ctx.lineTo(x+48,y);ctx.closePath();ctx.fill();
-    ctx.fillStyle = "#d5c8a3";
-  }
-
-  ctx.fillStyle = "#ddd0ad";
-  ctx.fillRect(1420, 170, 54, 120);
-  ctx.fillStyle = "#51463b";
-  ctx.beginPath();ctx.moveTo(1410,170);ctx.lineTo(1447,120);ctx.lineTo(1484,170);ctx.closePath();ctx.fill();
-
-  ctx.save();
-  ctx.translate(0, 510);
-  ctx.strokeStyle = "rgba(186,196,204,.34)";
-  ctx.lineWidth = 12;
-  for (let y = 0; y < 820; y += 36) {
+  ctx.strokeStyle = "rgba(168,181,187,.36)";
+  ctx.lineWidth = 11;
+  for (let y = 540; y < 1400; y += 38) {
     ctx.beginPath();
-    ctx.moveTo(-100, y + (y % 72 ? 8 : 0));
-    ctx.quadraticCurveTo(960, y - 60, 2020, y + 20);
+    ctx.moveTo(-80, y);
+    ctx.quadraticCurveTo(960, y - 70, 2000, y + 15);
     ctx.stroke();
   }
-  ctx.strokeStyle = "rgba(25,17,12,.78)";
+  ctx.strokeStyle = "rgba(28,19,13,.82)";
   ctx.lineWidth = 18;
-  for (let y = 12; y < 820; y += 36) {
-    ctx.beginPath();ctx.moveTo(-100,y);ctx.quadraticCurveTo(960,y-55,2020,y+20);ctx.stroke();
+  for (let y = 558; y < 1400; y += 38) {
+    ctx.beginPath();
+    ctx.moveTo(-80, y);
+    ctx.quadraticCurveTo(960, y - 70, 2000, y + 15);
+    ctx.stroke();
   }
-  ctx.restore();
 }
 
-function drawWorldBackground() {
+function withWorldTransform(callback) {
   const left = camera.x - viewport.width / 2;
   const top = camera.y - viewport.height / 2;
   ctx.save();
   ctx.translate(-left, -top);
-  if (plateReady) ctx.drawImage(plate, 0, 0, WORLD.width, WORLD.height);
-  else drawFallbackPlate();
-  drawStaticDepth();
+  callback();
   ctx.restore();
 }
 
-function drawStaticDepth() {
-  ctx.fillStyle = "rgba(20,46,26,.88)";
-  for (const b of [[100,980,210,160],[1600,1030,230,210],[70,1180,260,210],[1510,1220,360,250]]) {
-    ctx.beginPath();ctx.ellipse(b[0]+b[2]/2,b[1]+b[3]/2,b[2]/2,b[3]/2,0,0,Math.PI*2);ctx.fill();
-  }
-  ctx.strokeStyle = "#a39269";ctx.lineWidth = 12;
-  for (const [x,y,w] of [[130,1070,290],[1490,1040,300]]) {
-    ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+w,y+30);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(x,y+45);ctx.lineTo(x+w,y+75);ctx.stroke();
-  }
+function drawWorldBackground() {
+  withWorldTransform(() => {
+    if (plateReady) ctx.drawImage(plate, 0, 0, WORLD.width, WORLD.height);
+    else drawFallbackPlate();
+  });
 }
 
-function drawShadow(x, y, rx = 34, ry = 13, alpha = .3) {
-  ctx.save();ctx.fillStyle=`rgba(0,0,0,${alpha})`;ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fill();ctx.restore();
+function drawShadow(x, y, rx = 31, ry = 11, alpha = .34) {
+  ctx.save();
+  ctx.fillStyle = `rgba(0,0,0,${alpha})`;
+  ctx.beginPath();
+  ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
 }
 
-function drawPerson(point, colors, scale = 1, facing = 0) {
+function drawPerson(point, colors, { scale = 1, facing = 0, pose = null } = {}) {
   const p = camera.worldToScreen(point, viewport);
-  drawShadow(p.x, p.y + 8, 28 * scale, 10 * scale, .34);
-  ctx.save();ctx.translate(p.x,p.y);ctx.scale(scale,scale);
-  ctx.fillStyle = colors.legs;ctx.fillRect(-12,2,10,35);ctx.fillRect(3,2,10,35);
-  ctx.fillStyle = colors.body;ctx.beginPath();ctx.roundRect(-20,-48,40,55,10);ctx.fill();
-  ctx.fillStyle = colors.head;ctx.beginPath();ctx.arc(0,-61,13,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle = colors.hair;ctx.beginPath();ctx.arc(facing*3,-65,12,Math.PI,Math.PI*2);ctx.fill();
+  const bob = pose?.bob ?? 0;
+  const stride = pose?.stride ?? 0;
+  const lean = pose?.lean ?? 0;
+  const reach = pose?.reach ?? 0;
+
+  drawShadow(p.x, p.y + 10, 28 * scale, 10 * scale);
+  ctx.save();
+  ctx.translate(p.x, p.y - bob);
+  ctx.scale(scale, scale);
+  ctx.rotate(lean * .18 * (facing || 1));
+
+  ctx.strokeStyle = colors.legs;
+  ctx.lineWidth = 10;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(-8, 1); ctx.lineTo(-10 + stride * .35, 35);
+  ctx.moveTo(8, 1); ctx.lineTo(10 - stride * .35, 35);
+  ctx.stroke();
+
+  ctx.fillStyle = colors.body;
+  ctx.beginPath();
+  ctx.roundRect(-20, -48, 40, 54, 11);
+  ctx.fill();
+
+  ctx.strokeStyle = colors.body;
+  ctx.lineWidth = 8;
+  ctx.beginPath();
+  ctx.moveTo(-16, -34); ctx.lineTo(-25 - reach * .35, -5 + reach);
+  ctx.moveTo(16, -34); ctx.lineTo(24 + reach * .35, -5 + reach);
+  ctx.stroke();
+
+  ctx.fillStyle = colors.head;
+  ctx.beginPath();
+  ctx.arc(0, -61, 13, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = colors.hair;
+  ctx.beginPath();
+  ctx.arc(facing * 3, -65, 12, Math.PI, Math.PI * 2);
+  ctx.fill();
   ctx.restore();
 }
 
 function drawVaclav() {
   const p = camera.worldToScreen(CHLUM.vaclav, viewport);
-  drawPerson(CHLUM.vaclav,{body:"#6c563d",legs:"#403a31",head:"#d6ad7d",hair:"#7c5b2e"},1.02,0);
+  drawPerson(CHLUM.vaclav, { body: "#69533b", legs: "#37342e", head: "#d2aa7d", hair: "#795827" }, { scale: 1.02 });
   if (state.step === 0) {
-    ctx.save();ctx.strokeStyle="#b2f4b8";ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(p.x,p.y+16,48,19,0,0,Math.PI*2);ctx.stroke();ctx.restore();
+    ctx.save();
+    ctx.strokeStyle = "#b8f6bd";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.ellipse(p.x, p.y + 17, 48, 19, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
   }
 }
 
+let playerPose = playerAnimator.pose();
 function drawPlayer() {
-  drawPerson(state.player,{body:"#315f37",legs:"#514a37",head:"#d6ae82",hair:"#25231e"},1.05,Math.sign(state.player.facingX));
+  drawPerson(
+    state.player,
+    { body: "#315e37", legs: "#4b4636", head: "#d3ab82", hair: "#23221e" },
+    { scale: 1.05, facing: Math.sign(state.player.facingX), pose: playerPose }
+  );
 }
 
 function drawSearchAndFinding(time) {
   if (state.step === 1) {
     const p = camera.worldToScreen(CHLUM.search, viewport);
-    ctx.save();ctx.strokeStyle=`rgba(198,236,199,${.35+.18*Math.sin(time*3)})`;ctx.lineWidth=2;ctx.setLineDash([8,8]);ctx.beginPath();ctx.ellipse(p.x,p.y,78,32,0,0,Math.PI*2);ctx.stroke();ctx.restore();
+    ctx.save();
+    ctx.strokeStyle = `rgba(205,239,205,${.3 + .2 * Math.sin(time * 3)})`;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([8, 8]);
+    ctx.beginPath();
+    ctx.ellipse(p.x, p.y, 78, 32, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
   }
   if (state.step === 2) {
     const p = camera.worldToScreen(CHLUM.finding, viewport);
-    const pulse=1+Math.sin(time*5)*.15;
-    ctx.save();ctx.translate(p.x,p.y);ctx.scale(pulse,pulse);ctx.rotate(.6);ctx.fillStyle="#56ba77";ctx.beginPath();ctx.moveTo(0,-14);ctx.lineTo(10,-2);ctx.lineTo(6,13);ctx.lineTo(-9,8);ctx.lineTo(-12,-5);ctx.closePath();ctx.fill();ctx.strokeStyle="rgba(207,255,217,.75)";ctx.lineWidth=2;ctx.stroke();ctx.restore();
+    const pulse = 1 + Math.sin(time * 5) * .15;
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.scale(pulse, pulse);
+    ctx.rotate(.6);
+    ctx.fillStyle = "#55b876";
+    ctx.beginPath();
+    ctx.moveTo(0, -14); ctx.lineTo(10, -2); ctx.lineTo(6, 13); ctx.lineTo(-9, 8); ctx.lineTo(-12, -5); ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = "rgba(215,255,222,.82)";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.restore();
   }
 }
 
 function drawForeground() {
-  const left = camera.x - viewport.width / 2;
-  const top = camera.y - viewport.height / 2;
-  ctx.save();ctx.translate(-left,-top);ctx.fillStyle="rgba(18,55,28,.88)";
-  for(const [x,y,r] of [[90,1320,100],[220,1370,150],[1660,1360,180],[1840,1300,140]]){ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();}
-  ctx.restore();
+  withWorldTransform(() => {
+    ctx.fillStyle = "rgba(19,53,29,.82)";
+    for (const [x, y, r] of [[80, 1340, 110], [230, 1390, 150], [1680, 1380, 180], [1860, 1320, 145]]) {
+      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    }
+  });
 }
 
 function updateHud() {
@@ -199,9 +242,11 @@ function performAction() {
     state.step = 1;
     showToast("Václav: Po dešti se podívej do čerstvých brázd.");
   } else if (action.kind === "search") {
+    playerAnimator.play(ACTOR_STATE.SEARCH, .7);
     state.step = 2;
     showToast("Něco zeleného se zalesklo v blátě.");
   } else if (action.kind === "collect") {
+    playerAnimator.play(ACTOR_STATE.PICKUP, .7);
     state.step = 3;
     state.completed = true;
     showToast("Vltavín nalezen — Chlum dokončen.");
@@ -209,54 +254,98 @@ function performAction() {
   updateHud();
 }
 
-actionButton.addEventListener("pointerdown", e => { e.preventDefault(); performAction(); });
-addEventListener("keydown", e => {
-  if (["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","KeyW","KeyA","KeyS","KeyD"].includes(e.code)) { state.keys.add(e.code); e.preventDefault(); }
-  if (e.code === "KeyE" || e.code === "Space") { performAction(); e.preventDefault(); }
+actionButton.addEventListener("pointerdown", event => { event.preventDefault(); performAction(); });
+addEventListener("keydown", event => {
+  if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "KeyW", "KeyA", "KeyS", "KeyD"].includes(event.code)) {
+    state.keys.add(event.code);
+    event.preventDefault();
+  }
+  if (event.code === "KeyE" || event.code === "Space") {
+    performAction();
+    event.preventDefault();
+  }
 });
-addEventListener("keyup", e => state.keys.delete(e.code));
+addEventListener("keyup", event => state.keys.delete(event.code));
 addEventListener("blur", () => state.keys.clear());
-
-document.querySelector("#pauseButton").addEventListener("click", () => { state.paused = !state.paused; showToast(state.paused ? "Pauza" : "Pokračujeme"); });
+$("#pauseButton").addEventListener("click", () => {
+  state.paused = !state.paused;
+  showToast(state.paused ? "Pauza" : "Pokračujeme");
+});
 
 let joystickPointer = null;
 function setJoystick(clientX, clientY) {
-  const r = moveZone.getBoundingClientRect();
-  const cx = r.left + r.width/2, cy = r.top + r.height/2;
-  let dx = clientX-cx, dy = clientY-cy;
-  const max = r.width*.34;
-  const len = Math.hypot(dx,dy) || 1;
-  if (len > max) { dx=dx/len*max; dy=dy/len*max; }
-  state.touchMove.x = dx/max; state.touchMove.y = dy/max;
+  const rect = moveZone.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+  const max = rect.width * .34;
+  let dx = clientX - cx;
+  let dy = clientY - cy;
+  const length = Math.hypot(dx, dy) || 1;
+  if (length > max) { dx = dx / length * max; dy = dy / length * max; }
+  state.touchMove.x = dx / max;
+  state.touchMove.y = dy / max;
   stick.style.transform = `translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px))`;
 }
-moveZone.addEventListener("pointerdown",e=>{joystickPointer=e.pointerId;moveZone.setPointerCapture(e.pointerId);setJoystick(e.clientX,e.clientY);});
-moveZone.addEventListener("pointermove",e=>{if(e.pointerId===joystickPointer)setJoystick(e.clientX,e.clientY);});
-function resetJoystick(e){if(joystickPointer!==null&&(!e||e.pointerId===joystickPointer)){joystickPointer=null;state.touchMove.x=0;state.touchMove.y=0;stick.style.transform="translate(-50%,-50%)";}}
-moveZone.addEventListener("pointerup",resetJoystick);moveZone.addEventListener("pointercancel",resetJoystick);
+moveZone.addEventListener("pointerdown", event => {
+  joystickPointer = event.pointerId;
+  moveZone.setPointerCapture(event.pointerId);
+  setJoystick(event.clientX, event.clientY);
+});
+moveZone.addEventListener("pointermove", event => {
+  if (event.pointerId === joystickPointer) setJoystick(event.clientX, event.clientY);
+});
+function resetJoystick(event) {
+  if (joystickPointer === null || (event && event.pointerId !== joystickPointer)) return;
+  joystickPointer = null;
+  state.touchMove.x = 0;
+  state.touchMove.y = 0;
+  stick.style.transform = "translate(-50%,-50%)";
+}
+moveZone.addEventListener("pointerup", resetJoystick);
+moveZone.addEventListener("pointercancel", resetJoystick);
 
 function movementVector() {
-  let x=state.touchMove.x,y=state.touchMove.y;
-  if(state.keys.has("ArrowLeft")||state.keys.has("KeyA"))x-=1;
-  if(state.keys.has("ArrowRight")||state.keys.has("KeyD"))x+=1;
-  if(state.keys.has("ArrowUp")||state.keys.has("KeyW"))y-=1;
-  if(state.keys.has("ArrowDown")||state.keys.has("KeyS"))y+=1;
-  const len=Math.hypot(x,y);if(len>1){x/=len;y/=len;}return{x,y};
+  let x = state.touchMove.x;
+  let y = state.touchMove.y;
+  if (state.keys.has("ArrowLeft") || state.keys.has("KeyA")) x -= 1;
+  if (state.keys.has("ArrowRight") || state.keys.has("KeyD")) x += 1;
+  if (state.keys.has("ArrowUp") || state.keys.has("KeyW")) y -= 1;
+  if (state.keys.has("ArrowDown") || state.keys.has("KeyS")) y += 1;
+  const length = Math.hypot(x, y);
+  if (length > 1) { x /= length; y /= length; }
+  return { x, y };
 }
 
-let last=performance.now();
+let last = performance.now();
 function frame(now) {
-  const dt=Math.min(.05,(now-last)/1000);last=now;
-  if(!state.paused){
-    const move=movementVector();
-    state.player.moving=Math.hypot(move.x,move.y)>.05;
-    if(state.player.moving){state.player.facingX=move.x;state.player.facingY=move.y;state.player.x+=move.x*CHLUM.speed*dt;state.player.y+=move.y*CHLUM.speed*dt;clampPlayer(state.player);}
-    camera.update(state.player,viewport,dt);
+  const dt = Math.min(.05, (now - last) / 1000);
+  last = now;
+  if (!state.paused) {
+    const move = movementVector();
+    state.player.moving = Math.hypot(move.x, move.y) > .05;
+    playerAnimator.setMovement(move.x, move.y);
+    if (state.player.moving) {
+      state.player.facingX = move.x;
+      state.player.facingY = move.y;
+      state.player.x += move.x * CHLUM.speed * dt;
+      state.player.y += move.y * CHLUM.speed * dt;
+      clampPlayer(state.player);
+    }
+    playerPose = playerAnimator.update(dt);
+    camera.update(state.player, viewport, dt);
   }
-  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,viewport.width,viewport.height);
-  drawWorldBackground();drawSearchAndFinding(now/1000);drawVaclav();drawPlayer();drawForeground();updateHud();
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, viewport.width, viewport.height);
+  drawWorldBackground();
+  drawSearchAndFinding(now / 1000);
+  drawVaclav();
+  drawPlayer();
+  drawForeground();
+  updateHud();
   requestAnimationFrame(frame);
 }
-camera.snap(state.player,viewport);updateHud();requestAnimationFrame(frame);
 
-window.__zelenaVlna = { state, camera, WORLD, CHLUM };
+camera.snap(state.player, viewport);
+updateHud();
+requestAnimationFrame(frame);
+window.__zelenaVlna = { state, camera, animator: playerAnimator, WORLD, CHLUM };
