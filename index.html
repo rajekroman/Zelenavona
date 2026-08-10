@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#101812">
+  <meta name="description" content="Lovec vltavínů — Zelená vlna V7">
+  <title>Lovec vltavínů — Zelená vlna</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main id="app">
+    <canvas id="game" aria-label="Herní plocha Chlum"></canvas>
+
+    <section id="hud" aria-live="polite">
+      <div class="mission-card">
+        <span class="mission-number">1</span>
+        <div>
+          <small>CHLUM</small>
+          <strong id="objective">Promluv s Václavem</strong>
+        </div>
+      </div>
+      <div class="calm-card"><span>KLID</span><i><em id="calmFill"></em></i></div>
+      <div class="top-actions"><button id="soundButton" aria-label="Zvuk">♫</button><button id="pauseButton" aria-label="Pauza">Ⅱ</button></div>
+    </section>
+
+    <section id="controls" aria-label="Dotykové ovládání">
+      <div id="moveZone" class="move-zone"><div id="stick" class="stick"></div></div>
+      <button id="actionButton" class="action-button" type="button" aria-label="Akce"><span>●</span><small id="actionLabel">AKCE</small></button>
+    </section>
+
+    <div id="prompt" class="prompt hidden"><span>●</span><strong id="promptText">MLUVIT</strong></div>
+    <div id="toast" class="toast hidden"></div>
+    <div id="loading" class="loading"><strong>CHLUM</strong><span>Načítám lokalitu…</span></div>
+  </main>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
