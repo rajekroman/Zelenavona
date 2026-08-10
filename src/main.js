@@ -1,5 +1,6 @@
 import { FollowCamera } from "./camera.js";
 import { WORLD, CHLUM, clampPlayer, availableAction, objectiveForStep } from "./world.js";
+import { CHLUM_PLATE } from "./plateData.js";
 
 const canvas = document.querySelector("#game");
 const ctx = canvas.getContext("2d", { alpha: false });
@@ -29,7 +30,7 @@ const plate = new Image();
 let plateReady = false;
 plate.onload = () => { plateReady = true; loading.classList.add("hidden"); };
 plate.onerror = () => { loading.classList.add("hidden"); };
-plate.src = "./assets/chlum/chlum-v7-plate.jpg";
+plate.src = CHLUM_PLATE;
 setTimeout(() => loading.classList.add("hidden"), 1800);
 
 let dpr = 1;
@@ -156,7 +157,6 @@ function drawVaclav() {
 }
 
 function drawPlayer() {
-  const p = camera.worldToScreen(state.player, viewport);
   drawPerson(state.player,{body:"#315f37",legs:"#514a37",head:"#d6ae82",hair:"#25231e"},1.05,Math.sign(state.player.facingX));
 }
 
