@@ -2,6 +2,7 @@ import { FollowCamera } from "./camera.js";
 import { ACTOR_STATE, ActorAnimator } from "./animation.js";
 import { ActorRenderer } from "./actorRenderer.js";
 import { TractorPatrol } from "./tractor.js";
+import { ForestPressure } from "./forestPressure.js";
 import { WORLD, resolveLevel, clampPlayer, availableAction, objectiveForStep } from "./world.js";
 
 const $ = selector => document.querySelector(selector);
@@ -18,6 +19,7 @@ const moveZone = $("#moveZone");
 const stick = $("#stick");
 const toast = $("#toast");
 const loading = $("#loading");
+const calmFill = $("#calmFill");
 
 $("#missionNumber").textContent = String(level.number);
 $("#levelLabel").textContent = level.label;
@@ -31,6 +33,8 @@ const state = {
   completed: false,
   paused: false,
   hazardCooldown: 0,
+  forestPressure: 0,
+  inRiskZone: false,
   keys: new Set(),
   touchMove: { x: 0, y: 0 },
   action: null
@@ -38,6 +42,7 @@ const state = {
 
 const playerAnimator = new ActorAnimator();
 const tractor = level.id === "chlum" ? new TractorPatrol({ minX: 280, maxX: 1540, y: 715, speed: 118 }) : null;
+const forestPressure = level.pressure ? new ForestPressure(level.pressure) : null;
 const camera = new FollowCamera({ worldWidth: WORLD.width, worldHeight: WORLD.height, damping: 7.5, deadZone: 82 });
 let dpr = 1;
 let viewport = { width: innerWidth, height: innerHeight };
@@ -128,8 +133,19 @@ function drawPlayer() {
 }
 
 function drawHazard() {
-  if (!tractor) return;
-  actorRenderer.drawSprite("tractor", tractor, { width: 154, height: 98, flipX: tractor.direction < 0, anchorY: .78, shadow: true });
+  if (tractor) {
+    actorRenderer.drawSprite("tractor", tractor, { width: 154, height: 98, flipX: tractor.direction < 0, anchorY: .78, shadow: true });
+  }
+  if (forestPressure && state.inRiskZone) {
+    const alpha = Math.min(.22, .05 + state.forestPressure / 650);
+    ctx.save();
+    const gradient = ctx.createRadialGradient(viewport.width / 2, viewport.height / 2, viewport.height * .15, viewport.width / 2, viewport.height / 2, viewport.height * .72);
+    gradient.addColorStop(0, "rgba(12,24,13,0)");
+    gradient.addColorStop(1, `rgba(8,18,10,${alpha})`);
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, viewport.width, viewport.height);
+    ctx.restore();
+  }
 }
 
 function drawSearchAndFinding(time) {
@@ -173,6 +189,7 @@ function updateHud() {
   const label = state.action?.label ?? "AKCE";
   promptText.textContent = label;
   actionLabel.textContent = label;
+  if (calmFill) calmFill.style.width = `${Math.max(0, 100 - state.forestPressure)}%`;
 }
 
 function performAction() {
@@ -235,15 +252,38 @@ function movementVector() {
   return { x, y };
 }
 
-function updateHazard(dt) {
-  if (!tractor) return;
-  tractor.update(dt);
-  state.hazardCooldown = Math.max(0, state.hazardCooldown - dt);
-  if (state.hazardCooldown > 0 || !tractor.collides(state.player, 58)) return;
+function resetPlayerFromHazard(message) {
   Object.assign(state.player, level.spawn);
-  state.touchMove.x = 0; state.touchMove.y = 0; state.keys.clear(); state.hazardCooldown = 1.5;
+  state.touchMove.x = 0;
+  state.touchMove.y = 0;
+  state.keys.clear();
+  state.hazardCooldown = 1.5;
+  forestPressure?.reset();
+  state.forestPressure = 0;
+  state.inRiskZone = false;
   camera.snap(state.player, viewport);
-  showToast("Pozor na traktor — vrať se k okraji pole.");
+  showToast(message);
+}
+
+function updateHazard(dt) {
+  state.hazardCooldown = Math.max(0, state.hazardCooldown - dt);
+
+  if (tractor) {
+    tractor.update(dt);
+    if (state.hazardCooldown <= 0 && tractor.collides(state.player, 58)) {
+      resetPlayerFromHazard("Pozor na traktor — vrať se k okraji pole.");
+    }
+    return;
+  }
+
+  if (forestPressure) {
+    const result = forestPressure.update(state.player, level.npc, dt);
+    state.forestPressure = result.value;
+    state.inRiskZone = result.inRisk;
+    if (state.hazardCooldown <= 0 && result.caught && state.step > 0 && !state.completed) {
+      resetPlayerFromHazard("Lesník tě zahlédl — vrať se k okraji lesa a počkej, až se situace uklidní.");
+    }
+  }
 }
 
 let last = performance.now();
@@ -272,4 +312,4 @@ camera.setView(cameraViewForViewport(viewport), viewport);
 camera.snap(state.player, viewport);
 updateHud();
 requestAnimationFrame(frame);
-window.__zelenaVlna = { state, level, camera, animator: playerAnimator, actorRenderer, tractor, WORLD };
+window.__zelenaVlna = { state, level, camera, animator: playerAnimator, actorRenderer, tractor, forestPressure, WORLD };
