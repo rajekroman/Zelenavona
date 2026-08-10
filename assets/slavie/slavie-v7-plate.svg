@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1440" viewBox="0 0 1920 1440">
+<defs>
+  <linearGradient id="grass" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#87966f"/><stop offset="1" stop-color="#667356"/></linearGradient>
+  <linearGradient id="dirt" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a8865f"/><stop offset="1" stop-color="#78634d"/></linearGradient>
+  <linearGradient id="tent" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#f3eee0"/><stop offset="1" stop-color="#d3c9b3"/></linearGradient>
+  <filter id="shadow"><feDropShadow dx="0" dy="10" stdDeviation="9" flood-color="#273025" flood-opacity=".34"/></filter>
+  <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="3" seed="9" result="n"/><feComponentTransfer in="n"><feFuncA type="table" tableValues="0 .08"/></feComponentTransfer><feBlend in="SourceGraphic" mode="multiply"/></filter>
+</defs>
+<rect width="1920" height="1440" fill="#b9c2ae"/>
+<path d="M0 250c270-95 528-81 785 16 240-92 513-88 1135 14v260H0z" fill="#5e755e" opacity=".7"/>
+<path d="M0 420c248-78 455-48 684 22 264-73 516-67 760 17 184-55 344-45 476-13v210H0z" fill="#456147"/>
+<rect y="520" width="1920" height="920" fill="url(#grass)" filter="url(#grain)"/>
+
+<!-- open trampled event ground -->
+<path d="M180 720c260-105 563-130 875-83 274 42 502 133 685 271-172 191-440 316-760 355-323 39-612-7-862-138 19-169 39-284 62-405z" fill="url(#dirt)" opacity=".86"/>
+<path d="M245 810c220-71 452-88 695-52 241 36 449 113 624 230-172 129-381 211-626 237-269 28-514-4-735-99 11-107 25-213 42-316z" fill="#9b7c5b" opacity=".44"/>
+
+<!-- small Slávie backdrop in top-right corner only -->
+<g transform="translate(1500 420)" filter="url(#shadow)">
+  <rect x="0" y="0" width="360" height="220" rx="8" fill="#e7e0cf" stroke="#5a564d" stroke-width="7"/>
+  <path d="M-18 18L180-58 378 18z" fill="#7e3833" stroke="#4d2e2b" stroke-width="7"/>
+  <rect x="48" y="62" width="68" height="78" fill="#80939a"/><rect x="145" y="62" width="68" height="78" fill="#80939a"/><rect x="242" y="62" width="68" height="78" fill="#80939a"/>
+  <rect x="145" y="146" width="76" height="74" fill="#5e4b3b"/>
+  <rect x="24" y="16" width="130" height="34" rx="5" fill="#f2efe6"/><text x="89" y="40" text-anchor="middle" font-family="Arial,sans-serif" font-size="25" font-weight="700" fill="#7e3833">SLÁVIE</text>
+</g>
+
+<!-- stalls / tents around perimeter -->
+<g filter="url(#shadow)">
+  <g transform="translate(260 610)"><path d="M0 82L92 0l92 82z" fill="url(#tent)" stroke="#675f50" stroke-width="6"/><rect x="20" y="82" width="144" height="118" fill="#d5ccba" stroke="#675f50" stroke-width="6"/><rect x="30" y="116" width="124" height="38" fill="#7b5f45"/></g>
+  <g transform="translate(620 585)"><path d="M0 78L84 0l84 78z" fill="#d8e0d6" stroke="#536253" stroke-width="6"/><rect x="18" y="78" width="132" height="110" fill="#c7d1c4" stroke="#536253" stroke-width="6"/><rect x="31" y="110" width="106" height="34" fill="#6e795f"/></g>
+  <g transform="translate(1100 600)"><path d="M0 80L88 0l88 80z" fill="#ede4d0" stroke="#665d4e" stroke-width="6"/><rect x="20" y="80" width="136" height="112" fill="#d9ccb4" stroke="#665d4e" stroke-width="6"/><rect x="33" y="113" width="110" height="34" fill="#8b694b"/></g>
+</g>
+
+<!-- vans / parking edges -->
+<g filter="url(#shadow)">
+  <g transform="translate(132 995)"><rect width="210" height="92" rx="20" fill="#d8d5ca" stroke="#4f5551" stroke-width="7"/><rect x="120" y="15" width="68" height="37" rx="7" fill="#7d9297"/><circle cx="52" cy="95" r="25" fill="#343733"/><circle cx="164" cy="95" r="25" fill="#343733"/></g>
+  <g transform="translate(1490 1040)"><rect width="235" height="98" rx="22" fill="#7a866f" stroke="#424941" stroke-width="7"/><rect x="137" y="17" width="73" height="39" rx="7" fill="#879a9c"/><circle cx="59" cy="101" r="26" fill="#30332f"/><circle cx="182" cy="101" r="26" fill="#30332f"/></g>
+</g>
+
+<!-- display tables and loose event props -->
+<g filter="url(#shadow)">
+  <g transform="translate(1030 840)"><rect width="245" height="76" rx="10" fill="#654f39"/><rect x="12" y="10" width="221" height="50" rx="6" fill="#c6b28d"/><g fill="#4e8a65"><circle cx="62" cy="35" r="10"/><circle cx="99" cy="31" r="8"/><circle cx="142" cy="39" r="11"/><circle cx="180" cy="30" r="8"/></g></g>
+  <g transform="translate(520 920)"><rect width="190" height="64" rx="9" fill="#644e3a"/><rect x="11" y="9" width="168" height="42" rx="5" fill="#d4c3a4"/></g>
+</g>
+
+<!-- flags -->
+<g stroke="#4c5645" stroke-width="8"><path d="M430 570v250M1380 560v250M1740 650v230"/></g>
+<g><path d="M430 580h105l-28 34 28 35H430z" fill="#d8d4be"/><path d="M1380 570h108l-31 34 31 35H1380z" fill="#6d8b68"/><path d="M1740 660h98l-27 31 27 32h-98z" fill="#c69b63"/></g>
+
+<!-- worn paths -->
+<g fill="none" stroke-linecap="round"><path d="M420 1215c200-118 432-176 690-171 204 4 391 49 557 136" stroke="#c1a27a" stroke-width="34" opacity=".26"/><path d="M725 690c58 147 73 294 45 443" stroke="#5f5142" stroke-width="18" opacity=".22"/></g>
+</svg>

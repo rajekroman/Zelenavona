@@ -19,7 +19,8 @@ async function runtime(page) {
 for (const scenario of [
   { id: "chlum", label: "CHLUM", objective: "Promluv s Václavem", meter: "KLID" },
   { id: "nesmen", label: "NESMĚŇ", objective: "Promluv s lesníkem", meter: "KLID" },
-  { id: "besednice", label: "BESEDNICE", objective: "Promluv se správcem", meter: "STABILITA" }
+  { id: "besednice", label: "BESEDNICE", objective: "Promluv se správcem", meter: "STABILITA" },
+  { id: "slavie", label: "SLÁVIE", objective: "Promluv s pořadatelem", meter: "POZORNOST" }
 ]) {
   test(`${scenario.label} V7 renders a stable visual baseline`, async ({ page }, testInfo) => {
     await page.goto(`/?level=${scenario.id}`, { waitUntil: "domcontentloaded" });

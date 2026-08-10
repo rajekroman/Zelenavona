@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1440" viewBox="0 0 1920 1440">
+<defs><filter id="s"><feDropShadow dx="0" dy="8" stdDeviation="7" flood-color="#263024" flood-opacity=".38"/></filter></defs>
+<g filter="url(#s)">
+  <g fill="#4f6849"><ellipse cx="95" cy="1320" rx="150" ry="92"/><ellipse cx="285" cy="1360" rx="165" ry="86"/><ellipse cx="1640" cy="1350" rx="170" ry="88"/><ellipse cx="1840" cy="1315" rx="145" ry="92"/></g>
+  <g stroke="#7e985e" stroke-width="13" stroke-linecap="round" fill="none"><path d="M100 1440q-30-220-128-360M100 1440q72-205 170-332M360 1440q-18-195-94-330M1600 1440q-8-210-90-345M1600 1440q75-210 180-338M1830 1440q-20-205-92-325"/></g>
+  <g transform="translate(760 1270)"><rect x="0" y="0" width="310" height="110" rx="16" fill="#5f4c38" stroke="#3f352a" stroke-width="7"/><rect x="18" y="16" width="274" height="72" rx="10" fill="#d5c6a7"/><g fill="#4d8e67"><circle cx="68" cy="51" r="11"/><circle cx="110" cy="43" r="8"/><circle cx="157" cy="55" r="12"/><circle cx="204" cy="45" r="9"/><circle cx="249" cy="53" r="10"/></g></g>
+  <path d="M1520 1120h280l90 190h-415z" fill="#d7cfbc" opacity=".92" stroke="#5f594c" stroke-width="7"/>
+  <path d="M1500 1118h320l-160-115z" fill="#e9e1cf" stroke="#5f594c" stroke-width="7"/>
+</g>
+</svg>

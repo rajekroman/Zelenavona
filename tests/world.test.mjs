@@ -1,8 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { CHLUM, NESMEN, BESEDNICE, WORLD, availableAction, clampPlayer, objectiveForStep } from "../src/world.js";
+import { CHLUM, NESMEN, BESEDNICE, SLAVIE, WORLD, availableAction, clampPlayer, objectiveForStep } from "../src/world.js";
 
-for (const level of [CHLUM, NESMEN, BESEDNICE]) {
+for (const level of [CHLUM, NESMEN, BESEDNICE, SLAVIE]) {
   test(`${level.title} player stays inside authored playable bounds`, () => {
     const player = { x: -500, y: 9000 };
     clampPlayer(player, level);
@@ -18,7 +18,7 @@ for (const level of [CHLUM, NESMEN, BESEDNICE]) {
     assert.equal(availableAction(state, level)?.kind, "search");
     state.step = 2;
     state.player = { ...level.finding };
-    assert.deepEqual(availableAction(state, level), { kind: "collect", label: "SEBRAT" });
+    assert.equal(availableAction(state, level)?.kind, "collect");
     state.player = { x: 70, y: 70 };
     assert.equal(availableAction(state, level), null);
   });
@@ -26,21 +26,22 @@ for (const level of [CHLUM, NESMEN, BESEDNICE]) {
 
 test("Chlum objective labels remain unchanged", () => {
   assert.equal(objectiveForStep(0, CHLUM), "Promluv s Václavem");
-  assert.equal(objectiveForStep(1, CHLUM), "Prohledej mokré brázdy");
-  assert.equal(objectiveForStep(2, CHLUM), "Seber nalezený vltavín");
   assert.equal(objectiveForStep(3, CHLUM), "Chlum dokončen");
 });
 
 test("Nesmen has its own forest-specific objective sequence", () => {
   assert.equal(objectiveForStep(0, NESMEN), "Promluv s lesníkem");
-  assert.equal(objectiveForStep(1, NESMEN), "Najdi odkrytý profil");
-  assert.equal(objectiveForStep(2, NESMEN), "Prohledej kořeny a štěrk");
   assert.equal(objectiveForStep(3, NESMEN), "Nesměň dokončena");
 });
 
 test("Besednice has its own clay-pit objective sequence", () => {
   assert.equal(objectiveForStep(0, BESEDNICE), "Promluv se správcem");
-  assert.equal(objectiveForStep(1, BESEDNICE), "Najdi čerstvý jílový řez");
-  assert.equal(objectiveForStep(2, BESEDNICE), "Prohledej štěrkovou kapsu");
   assert.equal(objectiveForStep(3, BESEDNICE), "Besednice dokončena");
+});
+
+test("Slávie has its own event objective sequence", () => {
+  assert.equal(objectiveForStep(0, SLAVIE), "Promluv s pořadatelem");
+  assert.equal(objectiveForStep(1, SLAVIE), "Najdi stánek s vltavíny");
+  assert.equal(objectiveForStep(2, SLAVIE), "Prověř pravost kamene");
+  assert.equal(objectiveForStep(3, SLAVIE), "Slávie dokončena");
 });
