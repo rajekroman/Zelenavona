@@ -48,7 +48,8 @@ plate.onerror = () => { plateReady = false; loading.classList.add("hidden"); };
 plate.src = CHLUM_PLATE;
 actorRenderer.load({
   hunter: "./assets/actors/hunter-v7.svg",
-  vaclav: "./assets/actors/vaclav-v7.svg"
+  vaclav: "./assets/actors/vaclav-v7.svg",
+  tractor: "./assets/actors/tractor-v7.svg"
 }).then(() => {
   actorAssetsReady = true;
   finishLoading();
@@ -129,40 +130,15 @@ function drawWorldBackground() {
   });
 }
 
-function drawShadow(x, y, rx = 31, ry = 11, alpha = .34) {
-  ctx.save();
-  ctx.fillStyle = `rgba(0,0,0,${alpha})`;
-  ctx.beginPath(); ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.restore();
-}
-
 function drawTractor() {
-  const p = camera.worldToScreen(tractor, viewport);
-  const direction = tractor.direction < 0 ? -1 : 1;
-  const renderScale = Math.min(1.05, camera.zoom / 0.72);
-  drawShadow(p.x, p.y + 13 * renderScale, 57 * renderScale, 17 * renderScale, .38);
-  ctx.save();
-  ctx.translate(p.x, p.y);
-  ctx.scale(direction * renderScale, renderScale);
-  ctx.fillStyle = "#315a35";
-  ctx.beginPath(); ctx.roundRect(-44, -29, 72, 34, 6); ctx.fill();
-  ctx.fillStyle = "#25482b";
-  ctx.fillRect(4, -51, 31, 27);
-  ctx.fillStyle = "#9fb3aa";
-  ctx.fillRect(9, -47, 20, 14);
-  ctx.fillStyle = "#172219";
-  ctx.fillRect(23, -69, 5, 19);
-  for (const [x, r] of [[-25, 19], [27, 24]]) {
-    ctx.fillStyle = "#171714";
-    ctx.beginPath(); ctx.arc(x, 8, r, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = "#9e8f63";
-    ctx.lineWidth = 5;
-    ctx.beginPath(); ctx.arc(x, 8, r * .55, 0, Math.PI * 2); ctx.stroke();
-  }
-  ctx.strokeStyle = "#7a3e2a";
-  ctx.lineWidth = 5;
-  ctx.beginPath(); ctx.moveTo(-48, 2); ctx.lineTo(-82, 18); ctx.lineTo(-103, 18); ctx.stroke();
-  ctx.restore();
+  actorRenderer.drawSprite("tractor", tractor, {
+    width: 154,
+    height: 98,
+    scale: 1,
+    flipX: tractor.direction < 0,
+    anchorY: .78,
+    shadow: true
+  });
 }
 
 function drawVaclav() {
