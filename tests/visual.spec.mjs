@@ -5,7 +5,12 @@ async function runtime(page) {
   return page.evaluate(() => ({
     ready: Boolean(window.__zelenaVlna),
     player: window.__zelenaVlna?.state?.player ?? null,
-    camera: window.__zelenaVlna?.camera ? { x: window.__zelenaVlna.camera.x, y: window.__zelenaVlna.camera.y } : null
+    camera: window.__zelenaVlna?.camera ? {
+      x: window.__zelenaVlna.camera.x,
+      y: window.__zelenaVlna.camera.y,
+      zoom: window.__zelenaVlna.camera.zoom
+    } : null,
+    world: window.__zelenaVlna?.WORLD ?? null
   }));
 }
 
@@ -25,8 +30,15 @@ test("Chlum V7 renders a stable visual baseline", async ({ page }, testInfo) => 
   expect(layout.width).toBe(layout.clientWidth);
   expect(layout.height).toBe(layout.clientHeight);
 
+  const current = await runtime(page);
+  expect(current.camera.zoom * current.world.width).toBeGreaterThanOrEqual(layout.clientWidth);
+  expect(current.camera.zoom * current.world.height).toBeGreaterThanOrEqual(layout.clientHeight);
+
   if (testInfo.project.name === "desktop") {
-    const before = await runtime(page);
+    const controlsDisplay = await page.locator("#controls").evaluate(node => getComputedStyle(node).display);
+    expect(controlsDisplay).toBe("none");
+
+    const before = current;
     await page.keyboard.down("ArrowRight");
     await page.waitForTimeout(500);
     await page.keyboard.up("ArrowRight");
@@ -34,8 +46,37 @@ test("Chlum V7 renders a stable visual baseline", async ({ page }, testInfo) => 
     expect(after.player.x).toBeGreaterThan(before.player.x);
     expect(after.camera.x).toBeGreaterThanOrEqual(before.camera.x);
   } else {
-    await expect(page.locator("#moveZone")).toBeVisible();
-    await expect(page.locator("#actionButton")).toBeVisible();
+    const controls = await page.evaluate(() => {
+      const root = document.querySelector("#controls");
+      const move = document.querySelector("#moveZone");
+      const action = document.querySelector("#actionButton");
+      const rootRect = root.getBoundingClientRect();
+      const moveRect = move.getBoundingClientRect();
+      const actionRect = action.getBoundingClientRect();
+      const hit = document.elementFromPoint(
+        actionRect.left + actionRect.width / 2,
+        actionRect.top + actionRect.height / 2
+      );
+      const style = getComputedStyle(root);
+      return {
+        display: style.display,
+        position: style.position,
+        viewportHeight: innerHeight,
+        rootTop: rootRect.top,
+        rootBottom: rootRect.bottom,
+        moveWidth: moveRect.width,
+        actionWidth: actionRect.width,
+        actionHit: Boolean(hit?.closest("#actionButton"))
+      };
+    });
+
+    expect(controls.display).toBe("flex");
+    expect(controls.position).toBe("absolute");
+    expect(controls.rootTop).toBeGreaterThan(controls.viewportHeight * .5);
+    expect(controls.rootBottom).toBeLessThanOrEqual(controls.viewportHeight + 1);
+    expect(controls.moveWidth).toBeGreaterThan(60);
+    expect(controls.actionWidth).toBeGreaterThan(50);
+    expect(controls.actionHit).toBe(true);
   }
 
   const evidenceDir = testInfo.outputPath("evidence");
