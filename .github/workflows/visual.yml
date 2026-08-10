@@ -1,4 +1,4 @@
-name: Chlum Visual QA
+name: Chlum E2E + Visual QA
 
 on:
   pull_request:
@@ -20,7 +20,7 @@ jobs:
         run: |
           npm install --no-save --no-audit --no-fund @playwright/test
           npx playwright install --with-deps chromium
-      - name: Desktop + iPhone visual smoke
+      - name: Desktop + iPhone gameplay and visual matrix
         run: npx playwright test -c playwright.config.mjs
       - name: Upload visual evidence
         if: ${{ always() }}
