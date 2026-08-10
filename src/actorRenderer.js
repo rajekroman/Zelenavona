@@ -1,7 +1,7 @@
 const loadImage = source => new Promise((resolve, reject) => {
   const image = new Image();
   image.onload = () => resolve(image);
-  image.onerror = () => reject(new Error(`Actor asset failed to load: ${source}`));
+  image.onerror = () => reject(new Error(`Visual asset failed to load: ${source}`));
   image.src = source;
 });
 
@@ -25,12 +25,12 @@ export class ActorRenderer {
     return scale * Math.min(1.05, this.camera.zoom / .72);
   }
 
-  drawShadow(x, y, scale = 1) {
+  drawShadow(x, y, scale = 1, rx = 31, ry = 10) {
     const ctx = this.ctx;
     ctx.save();
     ctx.fillStyle = "rgba(10,12,9,.3)";
     ctx.beginPath();
-    ctx.ellipse(x, y + 3 * scale, 31 * scale, 10 * scale, 0, 0, Math.PI * 2);
+    ctx.ellipse(x, y + 3 * scale, rx * scale, ry * scale, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
   }
@@ -55,6 +55,24 @@ export class ActorRenderer {
     ctx.rotate(lean);
     ctx.scale(flip, 1);
     ctx.drawImage(image, -width / 2, -height, width, height);
+    ctx.restore();
+    return true;
+  }
+
+  drawSprite(id, point, { width = 120, height = 80, scale = 1, flipX = false, anchorY = 0.82, shadow = true } = {}) {
+    const image = this.assets.get(id);
+    if (!image) return false;
+    const viewport = this.viewport();
+    const screen = this.camera.worldToScreen(point, viewport);
+    const renderScale = this.screenScale(scale);
+    const drawWidth = width * renderScale;
+    const drawHeight = height * renderScale;
+    if (shadow) this.drawShadow(screen.x, screen.y + 5 * renderScale, renderScale, width * .28, height * .08);
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.translate(screen.x, screen.y);
+    ctx.scale(flipX ? -1 : 1, 1);
+    ctx.drawImage(image, -drawWidth / 2, -drawHeight * anchorY, drawWidth, drawHeight);
     ctx.restore();
     return true;
   }
