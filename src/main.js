@@ -40,6 +40,15 @@ setTimeout(() => loading.classList.add("hidden"), 1800);
 
 let dpr = 1;
 let viewport = { width: innerWidth, height: innerHeight };
+
+function cameraViewForViewport({ width, height }) {
+  const portrait = height > width * 1.15;
+  const shortLandscape = width > height * 1.65 && height < 600;
+  if (portrait) return { zoom: 0.58, focusOffsetX: 0, focusOffsetY: 250 };
+  if (shortLandscape) return { zoom: 0.52, focusOffsetX: 0, focusOffsetY: 320 };
+  return { zoom: 0.72, focusOffsetX: 0, focusOffsetY: 230 };
+}
+
 function resize() {
   dpr = Math.min(devicePixelRatio || 1, 2);
   viewport = { width: Math.max(1, innerWidth), height: Math.max(1, innerHeight) };
@@ -47,7 +56,8 @@ function resize() {
   canvas.height = Math.round(viewport.height * dpr);
   canvas.style.width = `${viewport.width}px`;
   canvas.style.height = `${viewport.height}px`;
-  camera.clamp(viewport);
+  camera.setView(cameraViewForViewport(viewport), viewport);
+  if (camera.initialized) camera.snap(state.player, viewport);
 }
 addEventListener("resize", resize, { passive: true });
 resize();
@@ -88,10 +98,8 @@ function drawFallbackPlate() {
 }
 
 function withWorldTransform(callback) {
-  const left = camera.x - viewport.width / 2;
-  const top = camera.y - viewport.height / 2;
   ctx.save();
-  ctx.translate(-left, -top);
+  camera.applyWorldTransform(ctx, viewport);
   callback();
   ctx.restore();
 }
@@ -103,6 +111,10 @@ function drawWorldBackground() {
   });
 }
 
+function actorScreenScale(scale = 1) {
+  return scale * Math.min(1.05, camera.zoom / 0.72);
+}
+
 function drawShadow(x, y, rx = 31, ry = 11, alpha = .34) {
   ctx.save();
   ctx.fillStyle = `rgba(0,0,0,${alpha})`;
@@ -112,14 +124,15 @@ function drawShadow(x, y, rx = 31, ry = 11, alpha = .34) {
 
 function drawPerson(point, colors, { scale = 1, facing = 0, pose = null } = {}) {
   const p = camera.worldToScreen(point, viewport);
-  const bob = pose?.bob ?? 0;
+  const renderScale = actorScreenScale(scale);
+  const bob = (pose?.bob ?? 0) * renderScale;
   const stride = pose?.stride ?? 0;
   const lean = pose?.lean ?? 0;
   const reach = pose?.reach ?? 0;
-  drawShadow(p.x, p.y + 10, 28 * scale, 10 * scale);
+  drawShadow(p.x, p.y + 10 * renderScale, 28 * renderScale, 10 * renderScale);
   ctx.save();
   ctx.translate(p.x, p.y - bob);
-  ctx.scale(scale, scale);
+  ctx.scale(renderScale, renderScale);
   ctx.rotate(lean * .18 * (facing || 1));
   ctx.strokeStyle = colors.legs;
   ctx.lineWidth = 10;
@@ -145,11 +158,12 @@ function drawPerson(point, colors, { scale = 1, facing = 0, pose = null } = {}) 
 
 function drawTractor() {
   const p = camera.worldToScreen(tractor, viewport);
-  const flip = tractor.direction < 0 ? -1 : 1;
-  drawShadow(p.x, p.y + 13, 57, 17, .38);
+  const direction = tractor.direction < 0 ? -1 : 1;
+  const renderScale = Math.min(1.05, camera.zoom / 0.72);
+  drawShadow(p.x, p.y + 13 * renderScale, 57 * renderScale, 17 * renderScale, .38);
   ctx.save();
   ctx.translate(p.x, p.y);
-  ctx.scale(flip, 1);
+  ctx.scale(direction * renderScale, renderScale);
   ctx.fillStyle = "#315a35";
   ctx.beginPath(); ctx.roundRect(-44, -29, 72, 34, 6); ctx.fill();
   ctx.fillStyle = "#25482b";
@@ -167,18 +181,17 @@ function drawTractor() {
   }
   ctx.strokeStyle = "#7a3e2a";
   ctx.lineWidth = 5;
-  ctx.beginPath();
-  ctx.moveTo(-48, 2); ctx.lineTo(-82, 18); ctx.lineTo(-103, 18);
-  ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(-48, 2); ctx.lineTo(-82, 18); ctx.lineTo(-103, 18); ctx.stroke();
   ctx.restore();
 }
 
 function drawVaclav() {
   const p = camera.worldToScreen(CHLUM.vaclav, viewport);
+  const ringScale = Math.min(1.05, camera.zoom / 0.72);
   drawPerson(CHLUM.vaclav, { body: "#69533b", legs: "#37342e", head: "#d2aa7d", hair: "#795827" }, { scale: 1.02 });
   if (state.step === 0) {
     ctx.save(); ctx.strokeStyle = "#b8f6bd"; ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.ellipse(p.x, p.y + 17, 48, 19, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(p.x, p.y + 17 * ringScale, 48 * ringScale, 19 * ringScale, 0, 0, Math.PI * 2); ctx.stroke();
     ctx.restore();
   }
 }
@@ -195,29 +208,21 @@ function drawPlayer() {
 function drawSearchAndFinding(time) {
   if (state.step === 1) {
     const p = camera.worldToScreen(CHLUM.search, viewport);
+    const scale = Math.min(1, camera.zoom / .72);
     ctx.save();
     ctx.strokeStyle = `rgba(205,239,205,${.3 + .2 * Math.sin(time * 3)})`;
     ctx.lineWidth = 2; ctx.setLineDash([8, 8]);
-    ctx.beginPath(); ctx.ellipse(p.x, p.y, 78, 32, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(p.x, p.y, 78 * scale, 32 * scale, 0, 0, Math.PI * 2); ctx.stroke();
     ctx.restore();
   }
   if (state.step === 2) {
     const p = camera.worldToScreen(CHLUM.finding, viewport);
-    const pulse = 1 + Math.sin(time * 5) * .15;
+    const pulse = (1 + Math.sin(time * 5) * .15) * Math.min(1, camera.zoom / .72);
     ctx.save(); ctx.translate(p.x, p.y); ctx.scale(pulse, pulse); ctx.rotate(.6);
     ctx.fillStyle = "#55b876";
     ctx.beginPath(); ctx.moveTo(0, -14); ctx.lineTo(10, -2); ctx.lineTo(6, 13); ctx.lineTo(-9, 8); ctx.lineTo(-12, -5); ctx.closePath(); ctx.fill();
     ctx.strokeStyle = "rgba(215,255,222,.82)"; ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
   }
-}
-
-function drawForeground() {
-  withWorldTransform(() => {
-    ctx.fillStyle = "rgba(19,53,29,.82)";
-    for (const [x, y, r] of [[80, 1340, 110], [230, 1390, 150], [1680, 1380, 180], [1860, 1320, 145]]) {
-      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
-    }
-  });
 }
 
 function updateHud() {
@@ -348,11 +353,11 @@ function frame(now) {
   drawTractor();
   drawVaclav();
   drawPlayer();
-  drawForeground();
   updateHud();
   requestAnimationFrame(frame);
 }
 
+camera.setView(cameraViewForViewport(viewport), viewport);
 camera.snap(state.player, viewport);
 updateHud();
 requestAnimationFrame(frame);
