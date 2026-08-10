@@ -6,6 +6,7 @@ async function runtime(page) {
     level: window.__zelenaVlna?.level?.id ?? null,
     step: window.__zelenaVlna?.state?.step ?? -1,
     completed: Boolean(window.__zelenaVlna?.state?.completed),
+    forestPressure: window.__zelenaVlna?.state?.forestPressure ?? 0,
     player: window.__zelenaVlna?.state?.player ? { ...window.__zelenaVlna.state.player } : null
   }));
 }
@@ -87,3 +88,30 @@ for (const scenario of [
     await expect.poll(async () => (await runtime(page)).completed).toBe(true);
   });
 }
+
+test("NESMĚŇ risk zone drains KLID and eventually sends the hunter back to the forest edge", async ({ page }) => {
+  await page.goto("/?level=nesmen", { waitUntil: "domcontentloaded" });
+  await expect.poll(async () => (await runtime(page)).ready).toBe(true);
+  await page.evaluate(() => {
+    const runtime = window.__zelenaVlna;
+    const zone = runtime.level.pressure.zone;
+    runtime.state.step = 1;
+    runtime.state.hazardCooldown = 0;
+    runtime.state.player.x = zone.x + zone.width / 2;
+    runtime.state.player.y = zone.y + zone.height / 2;
+    runtime.forestPressure.reset();
+  });
+
+  await page.waitForTimeout(700);
+  await expect.poll(async () => (await runtime(page)).forestPressure).toBeGreaterThan(10);
+  const calmWidth = await page.locator("#calmFill").evaluate(node => parseFloat(getComputedStyle(node).width));
+  const calmTrackWidth = await page.locator("#calmFill").evaluate(node => parseFloat(getComputedStyle(node.parentElement).width));
+  expect(calmWidth).toBeLessThan(calmTrackWidth);
+
+  await expect.poll(async () => {
+    const current = await runtime(page);
+    const spawn = await page.evaluate(() => window.__zelenaVlna.level.spawn);
+    return Math.hypot(current.player.x - spawn.x, current.player.y - spawn.y);
+  }, { timeout: 5000 }).toBeLessThan(5);
+  await expect.poll(async () => (await runtime(page)).forestPressure).toBe(0);
+});
