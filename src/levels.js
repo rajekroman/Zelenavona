@@ -87,6 +87,12 @@ export const LEVELS = Object.freeze({
     finding: { x: 1470, y: 820 },
     speed: 224,
     minY: 360,
+    crowdRisk: {
+      zone: { x: 980, y: 690, width: 620, height: 360 },
+      gainPerSecond: 29,
+      recoverPerSecond: 32,
+      threshold: 100
+    },
     objectives: ["Promluv s pořadatelem", "Najdi stánek s vltavíny", "Prověř pravost kamene", "Slávie dokončena"],
     actions: [
       { step: 0, target: "npc", radius: 110, kind: "talk", label: "MLUVIT" },
