@@ -3,6 +3,7 @@ const ctx = canvas?.getContext("2d");
 const plate = new Image();
 
 let ready = false;
+let source = null;
 let dpr = 1;
 let viewport = { width: innerWidth, height: innerHeight };
 
@@ -16,9 +17,18 @@ function resize() {
   canvas.style.height = `${viewport.height}px`;
 }
 
+function ensureSource(runtime) {
+  const next = runtime?.level?.foreground;
+  if (!next || next === source) return;
+  source = next;
+  ready = false;
+  plate.src = source;
+}
+
 function draw() {
   if (!canvas || !ctx) return;
   const runtime = window.__zelenaVlna;
+  ensureSource(runtime);
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, viewport.width, viewport.height);
 
@@ -28,7 +38,6 @@ function draw() {
     ctx.drawImage(plate, 0, 0, runtime.WORLD.width, runtime.WORLD.height);
     ctx.restore();
   }
-
   requestAnimationFrame(draw);
 }
 
@@ -37,13 +46,12 @@ if (canvas && ctx) {
   resize();
   plate.onload = () => {
     ready = true;
-    window.__zelenaForeground = { ready: true, canvas };
+    window.__zelenaForeground = { ready: true, canvas, source };
   };
   plate.onerror = () => {
     ready = false;
-    window.__zelenaForeground = { ready: false, canvas };
+    window.__zelenaForeground = { ready: false, canvas, source };
   };
-  plate.src = "./assets/chlum/chlum-v7-foreground.svg";
-  window.__zelenaForeground = { ready: false, canvas };
+  window.__zelenaForeground = { ready: false, canvas, source: null };
   requestAnimationFrame(draw);
 }
