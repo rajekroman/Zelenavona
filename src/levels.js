@@ -61,6 +61,12 @@ export const LEVELS = Object.freeze({
     finding: { x: 1480, y: 760 },
     speed: 212,
     minY: 390,
+    instability: {
+      zone: { x: 1090, y: 625, width: 620, height: 330 },
+      gainPerSecond: 31,
+      recoverPerSecond: 28,
+      threshold: 100
+    },
     objectives: ["Promluv se správcem", "Najdi čerstvý jílový řez", "Prohledej štěrkovou kapsu", "Besednice dokončena"],
     actions: [
       { step: 0, target: "npc", radius: 108, kind: "talk", label: "MLUVIT" },
