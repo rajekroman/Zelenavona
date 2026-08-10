@@ -116,7 +116,7 @@ function drawNpc() {
     ctx.strokeStyle = "#b8f6bd";
     ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.ellipse(p.x, p.y + 10 * s, 43 * s, 16 * s, 0, Math.PI * 2);
+    ctx.ellipse(p.x, p.y + 10 * s, 43 * s, 16 * s, 0, 0, Math.PI * 2);
     ctx.stroke();
     ctx.restore();
   }
