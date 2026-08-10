@@ -26,3 +26,23 @@ test("camera damps movement after leaving dead zone", () => {
   assert.ok(camera.x > 900);
   assert.ok(camera.x < 1150);
 });
+
+test("zoom expands the visible world while keeping screen projection stable", () => {
+  const viewport = { width: 1280, height: 720 };
+  const camera = new FollowCamera({ worldWidth: 1920, worldHeight: 1440, zoom: .72 });
+  camera.snap({ x: 960, y: 800 }, viewport);
+  const projected = camera.worldToScreen({ x: 960, y: 800 }, viewport);
+  assert.equal(projected.x, 640);
+  assert.equal(projected.y, 360);
+  assert.ok(viewport.width / camera.zoom > viewport.width);
+});
+
+test("vertical focus offset deliberately composes the player below screen center", () => {
+  const viewport = { width: 1280, height: 720 };
+  const camera = new FollowCamera({ worldWidth: 1920, worldHeight: 1440, zoom: .72, focusOffsetY: 230 });
+  const player = { x: 960, y: 1050 };
+  camera.snap(player, viewport);
+  const projected = camera.worldToScreen(player, viewport);
+  assert.ok(projected.y > viewport.height * .65);
+  assert.ok(projected.y < viewport.height * .85);
+});
