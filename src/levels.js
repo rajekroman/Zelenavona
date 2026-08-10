@@ -82,7 +82,7 @@ export const LEVELS = Object.freeze({
     plate: "./assets/slavie/slavie-v7-plate.svg",
     foreground: "./assets/slavie/slavie-v7-foreground.svg",
     spawn: { x: 520, y: 1100 },
-    npc: { id: "organizer", x: 805, y: 980 },
+    npc: { id: "organizer", x: 720, y: 980 },
     search: { x: 1200, y: 875 },
     finding: { x: 1470, y: 820 },
     speed: 224,
