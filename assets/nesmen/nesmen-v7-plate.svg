@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1440" viewBox="0 0 1920 1440">
+<defs>
+  <linearGradient id="canopy" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#26392b"/><stop offset=".42" stop-color="#39513a"/><stop offset="1" stop-color="#61705a"/></linearGradient>
+  <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#4d5741"/><stop offset=".35" stop-color="#3a4632"/><stop offset="1" stop-color="#262b22"/></linearGradient>
+  <linearGradient id="light" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d8d8a5" stop-opacity=".42"/><stop offset="1" stop-color="#d8d8a5" stop-opacity="0"/></linearGradient>
+  <linearGradient id="bank" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#b18b58"/><stop offset=".45" stop-color="#806643"/><stop offset="1" stop-color="#51442f"/></linearGradient>
+  <filter id="blur"><feGaussianBlur stdDeviation="16"/></filter>
+  <filter id="shadow"><feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#10150f" flood-opacity=".45"/></filter>
+</defs>
+<rect width="1920" height="1440" fill="url(#canopy)"/>
+<!-- distant forest walls -->
+<g opacity=".56" filter="url(#blur)" fill="#1f3326">
+  <path d="M0 0h1920v410c-150 38-245 4-390 32-170 33-270 3-420 39-160 38-280-10-430 20-173 34-310-7-510 30L0 500z"/>
+</g>
+<g opacity=".8">
+  <path d="M0 365C190 318 325 350 470 390C635 322 780 338 925 392C1080 325 1250 334 1405 394C1550 334 1740 330 1920 382V565H0z" fill="#2f4934"/>
+  <g fill="#243a2b">
+    <circle cx="130" cy="380" r="92"/><circle cx="320" cy="365" r="108"/><circle cx="540" cy="380" r="104"/><circle cx="760" cy="360" r="115"/><circle cx="1010" cy="375" r="110"/><circle cx="1250" cy="350" r="118"/><circle cx="1500" cy="375" r="105"/><circle cx="1760" cy="360" r="116"/>
+  </g>
+</g>
+<!-- floor -->
+<path d="M0 455C370 425 700 445 980 468C1260 430 1600 434 1920 470V1440H0z" fill="url(#floor)"/>
+<!-- paths and wet depressions -->
+<path d="M610 1440C675 1230 730 1085 835 960C955 820 1075 705 1110 510C1190 590 1192 735 1122 852C1052 970 962 1046 914 1160C875 1254 852 1354 840 1440z" fill="#635d45" opacity=".55"/>
+<path d="M720 1440C765 1238 830 1110 908 1000C1010 858 1098 735 1110 525" fill="none" stroke="#88765b" stroke-width="18" opacity=".28"/>
+<g fill="#74847a" opacity=".28">
+  <ellipse cx="430" cy="1060" rx="160" ry="42"/><ellipse cx="1220" cy="980" rx="190" ry="55"/><ellipse cx="1510" cy="1180" rx="150" ry="44"/>
+</g>
+<!-- exposed gravel profile -->
+<g filter="url(#shadow)">
+  <path d="M1170 650C1280 602 1440 610 1570 670L1532 905C1425 870 1288 868 1188 914z" fill="url(#bank)"/>
+  <path d="M1186 708C1310 666 1432 672 1555 715" fill="none" stroke="#d1b780" stroke-width="16" opacity=".7"/>
+  <path d="M1195 760C1320 724 1435 730 1545 766" fill="none" stroke="#6c5235" stroke-width="23" opacity=".8"/>
+  <path d="M1200 817C1325 785 1435 792 1537 824" fill="none" stroke="#c5a76b" stroke-width="12" opacity=".72"/>
+  <g fill="#4f4939"><circle cx="1260" cy="730" r="9"/><circle cx="1350" cy="785" r="12"/><circle cx="1450" cy="720" r="8"/><circle cx="1495" cy="840" r="11"/></g>
+</g>
+<!-- tree trunks midground -->
+<g filter="url(#shadow)">
+  <g fill="#463c2d" stroke="#29261f" stroke-width="7">
+    <path d="M110 90l60 0 32 885-118 0z"/><path d="M358 0h72l18 840-125 0z"/><path d="M680 40h70l38 770-132 0z"/>
+    <path d="M1035 0h78l22 655-126 0z"/><path d="M1630 0h82l-10 880-140 0z"/><path d="M1830 80h68l30 950-120 0z"/>
+  </g>
+  <g fill="#5e513a" opacity=".58"><path d="M132 110l18 0 15 820-28 0z"/><path d="M382 30h18l12 770-28 0z"/><path d="M1070 20h20l5 600-28 0z"/><path d="M1662 22h22l-9 810-29 0z"/></g>
+</g>
+<!-- roots -->
+<g fill="none" stroke="#3d3529" stroke-linecap="round">
+  <path d="M130 930c95 25 175 74 248 147M134 930C70 986 32 1050 0 1120" stroke-width="29"/>
+  <path d="M1690 860c-110 54-205 125-286 226M1680 864c93 48 162 116 240 205" stroke-width="34"/>
+  <path d="M710 785c-85 45-150 92-205 160M711 790c80 43 135 88 185 143" stroke-width="24"/>
+</g>
+<!-- moss patches -->
+<g fill="#567044" opacity=".78">
+  <ellipse cx="270" cy="1020" rx="155" ry="66"/><ellipse cx="720" cy="1010" rx="190" ry="70"/><ellipse cx="1080" cy="1110" rx="210" ry="72"/><ellipse cx="1640" cy="1020" rx="185" ry="75"/><ellipse cx="500" cy="1280" rx="220" ry="80"/>
+</g>
+<!-- ferns midground -->
+<g stroke="#78915b" stroke-width="8" stroke-linecap="round" fill="none" opacity=".88">
+  <path d="M300 1170q-45-90-130-125M300 1170q20-102 96-163M300 1170q-5-92 14-172"/>
+  <path d="M930 1175q-54-108-145-155M930 1175q27-120 110-180M930 1175q-8-108 20-192"/>
+  <path d="M1500 1090q-42-95-125-140M1500 1090q23-108 92-174M1500 1090q-3-102 20-180"/>
+</g>
+<!-- shafts of light -->
+<path d="M860 0l350 0-210 1010-360 150z" fill="url(#light)" opacity=".72"/>
+<path d="M1360 0h210l-40 840-270 145z" fill="url(#light)" opacity=".3"/>
+<!-- leaf litter -->
+<g fill="#9a7c4b" opacity=".42">
+  <ellipse cx="420" cy="900" rx="8" ry="3" transform="rotate(30 420 900)"/><ellipse cx="560" cy="1150" rx="9" ry="3" transform="rotate(-20 560 1150)"/><ellipse cx="980" cy="1270" rx="8" ry="3"/><ellipse cx="1320" cy="1070" rx="9" ry="3" transform="rotate(18 1320 1070)"/><ellipse cx="1730" cy="1220" rx="8" ry="3" transform="rotate(-35 1730 1220)"/>
+</g>
+</svg>
