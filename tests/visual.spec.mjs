@@ -4,6 +4,7 @@ import { test, expect } from "@playwright/test";
 async function runtime(page) {
   return page.evaluate(() => ({
     ready: Boolean(window.__zelenaVlna),
+    foregroundReady: Boolean(window.__zelenaForeground?.ready),
     player: window.__zelenaVlna?.state?.player ?? null,
     camera: window.__zelenaVlna?.camera ? {
       x: window.__zelenaVlna.camera.x,
@@ -17,9 +18,11 @@ async function runtime(page) {
 test("Chlum V7 renders a stable visual baseline", async ({ page }, testInfo) => {
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await expect.poll(async () => (await runtime(page)).ready).toBe(true);
+  await expect.poll(async () => (await runtime(page)).foregroundReady).toBe(true);
   await expect(page.locator("#loading")).toHaveClass(/hidden/);
   await expect(page.locator("#objective")).toHaveText("Promluv s Václavem");
   await expect(page.locator("#game")).toBeVisible();
+  await expect(page.locator("#foreground")).toBeVisible();
 
   const layout = await page.evaluate(() => ({
     width: document.documentElement.scrollWidth,
@@ -33,6 +36,23 @@ test("Chlum V7 renders a stable visual baseline", async ({ page }, testInfo) => 
   const current = await runtime(page);
   expect(current.camera.zoom * current.world.width).toBeGreaterThanOrEqual(layout.clientWidth);
   expect(current.camera.zoom * current.world.height).toBeGreaterThanOrEqual(layout.clientHeight);
+
+  const layerState = await page.evaluate(() => {
+    const game = getComputedStyle(document.querySelector("#game"));
+    const foreground = getComputedStyle(document.querySelector("#foreground"));
+    const hud = getComputedStyle(document.querySelector("#hud"));
+    return {
+      gameZ: Number(game.zIndex),
+      foregroundZ: Number(foreground.zIndex),
+      hudZ: Number(hud.zIndex),
+      foregroundPosition: foreground.position,
+      foregroundPointerEvents: foreground.pointerEvents
+    };
+  });
+  expect(layerState.foregroundPosition).toBe("absolute");
+  expect(layerState.foregroundPointerEvents).toBe("none");
+  expect(layerState.foregroundZ).toBeGreaterThan(layerState.gameZ);
+  expect(layerState.foregroundZ).toBeLessThan(layerState.hudZ);
 
   if (testInfo.project.name === "desktop") {
     const controlsDisplay = await page.locator("#controls").evaluate(node => getComputedStyle(node).display);
