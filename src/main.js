@@ -78,6 +78,9 @@ function cameraViewForViewport({ width, height }) {
   const portrait = height > width * 1.15;
   const shortLandscape = width > height * 1.65 && height < 600;
   const minimumCover = Math.max(width / WORLD.width, height / WORLD.height);
+  if (portrait && level.id === "besednice") {
+    return { zoom: Math.max(.76, minimumCover), focusOffsetX: -120, focusOffsetY: -40 };
+  }
   const base = portrait ? { zoom: .58, focusOffsetY: 250 } : shortLandscape ? { zoom: .52, focusOffsetY: 320 } : { zoom: .72, focusOffsetY: 230 };
   return { zoom: Math.max(base.zoom, minimumCover), focusOffsetX: 0, focusOffsetY: base.focusOffsetY };
 }
