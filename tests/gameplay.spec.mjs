@@ -76,7 +76,7 @@ for (const scenario of [
     id: "slavie",
     url: "/?level=slavie",
     label: "SLÁVIE",
-    objectives: ["Najdi stůl s vltavíny", "Ověř pravost vybraného kamene", "Slávie dokončena"]
+    objectives: ["Najdi stánek s vltavíny", "Prověř pravost kamene", "Slávie dokončena"]
   }
 ]) {
   test(`${scenario.label} quest completes through the shared contextual runtime`, async ({ page }, testInfo) => {
