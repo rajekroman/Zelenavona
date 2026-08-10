@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1440" viewBox="0 0 1920 1440">
+<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#9da8a0"/><stop offset="1" stop-color="#c8c2a8"/></linearGradient>
+  <linearGradient id="pit" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#a78457"/><stop offset=".32" stop-color="#8b6847"/><stop offset=".7" stop-color="#6f543c"/><stop offset="1" stop-color="#554538"/></linearGradient>
+  <linearGradient id="clay" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#bc795d"/><stop offset=".48" stop-color="#9b5f4e"/><stop offset="1" stop-color="#71473c"/></linearGradient>
+  <linearGradient id="sand" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d6b579"/><stop offset="1" stop-color="#b58b56"/></linearGradient>
+  <radialGradient id="water"><stop stop-color="#b6c0b8" stop-opacity=".55"/><stop offset=".58" stop-color="#778c85" stop-opacity=".38"/><stop offset="1" stop-color="#4d625b" stop-opacity=".18"/></radialGradient>
+  <filter id="shadow"><feDropShadow dx="0" dy="13" stdDeviation="12" flood-color="#32261d" flood-opacity=".35"/></filter>
+  <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".045" numOctaves="3" seed="17" result="n"/><feComponentTransfer in="n"><feFuncA type="table" tableValues="0 .12"/></feComponentTransfer><feBlend in="SourceGraphic" mode="multiply"/></filter>
+</defs>
+<rect width="1920" height="1440" fill="url(#sky)"/>
+<path d="M0 330c190-93 345-77 505-24 185-79 366-71 522-10 204-77 383-65 893 38v210H0z" fill="#62745b" opacity=".76"/>
+<path d="M0 420c247-72 457-45 650 20 219-80 458-66 690 9 190-68 370-57 580 5v160H0z" fill="#3f5b42"/>
+
+<!-- excavation bowl -->
+<path d="M0 535C235 475 465 485 680 548c252-84 515-84 750-14 182-48 334-46 490 8V1440H0z" fill="url(#pit)" filter="url(#grain)"/>
+
+<!-- layered walls -->
+<g filter="url(#shadow)">
+  <path d="M80 560c252-61 472-39 661 31l-47 346c-213-69-418-72-620-15z" fill="url(#sand)"/>
+  <path d="M95 620c211-42 404-30 586 24" fill="none" stroke="#ead09b" stroke-width="24" opacity=".9"/>
+  <path d="M88 696c217-48 412-34 602 26" fill="none" stroke="#9d624a" stroke-width="47" opacity=".88"/>
+  <path d="M86 782c220-51 422-37 606 20" fill="none" stroke="#d7ad70" stroke-width="30" opacity=".9"/>
+  <path d="M82 858c224-47 421-31 612 27" fill="none" stroke="#7b5441" stroke-width="39" opacity=".88"/>
+
+  <path d="M1255 506c201-59 420-47 665 34v426c-225-72-426-76-622-23z" fill="url(#clay)"/>
+  <path d="M1277 584c191-42 392-31 612 37" fill="none" stroke="#d8a074" stroke-width="36" opacity=".82"/>
+  <path d="M1287 669c187-40 385-28 590 30" fill="none" stroke="#885040" stroke-width="48" opacity=".9"/>
+  <path d="M1294 763c182-35 374-23 576 31" fill="none" stroke="#c98261" stroke-width="30" opacity=".84"/>
+  <path d="M1300 842c177-33 358-22 550 25" fill="none" stroke="#69463c" stroke-width="44" opacity=".8"/>
+</g>
+
+<!-- central washed floor -->
+<path d="M520 930c235-83 487-88 738-11 174 54 312 140 416 263-203 111-431 181-681 209-298 33-566-3-811-107 57-143 166-266 338-354z" fill="#675b4b" opacity=".84"/>
+<path d="M600 1025c216-69 431-57 647 23 105 39 202 94 284 161-191 76-385 117-586 125-219 9-425-20-619-83 57-92 148-168 274-226z" fill="#514b41" opacity=".75"/>
+
+<!-- puddles -->
+<g fill="url(#water)" stroke="#bac0ae" stroke-opacity=".28" stroke-width="4">
+  <ellipse cx="770" cy="1155" rx="205" ry="72"/><ellipse cx="1210" cy="1075" rx="175" ry="61"/><ellipse cx="1460" cy="1250" rx="235" ry="77"/><ellipse cx="430" cy="1280" rx="160" ry="55"/>
+</g>
+<g fill="#d1d1bb" opacity=".2"><ellipse cx="745" cy="1138" rx="103" ry="17"/><ellipse cx="1430" cy="1231" rx="123" ry="19"/></g>
+
+<!-- gravel pockets and loose stones -->
+<g fill="#69665a" stroke="#3f3d35" stroke-width="4">
+  <ellipse cx="920" cy="875" rx="27" ry="18"/><ellipse cx="1010" cy="930" rx="19" ry="13"/><ellipse cx="1125" cy="862" rx="31" ry="21"/><ellipse cx="1180" cy="974" rx="22" ry="15"/><ellipse cx="1360" cy="1035" rx="29" ry="19"/><ellipse cx="1565" cy="1090" rx="24" ry="16"/><ellipse cx="620" cy="990" rx="20" ry="14"/>
+</g>
+<g fill="#c2a16b" opacity=".88"><circle cx="1100" cy="785" r="7"/><circle cx="1158" cy="809" r="5"/><circle cx="1215" cy="830" r="7"/><circle cx="1300" cy="936" r="6"/><circle cx="885" cy="968" r="6"/></g>
+
+<!-- drainage cuts / tire scars -->
+<g fill="none" stroke-linecap="round">
+  <path d="M720 940c80 94 123 190 129 300" stroke="#443b32" stroke-width="22" opacity=".48"/>
+  <path d="M780 920c86 98 135 205 142 322" stroke="#8d8067" stroke-width="7" opacity=".35"/>
+  <path d="M1170 925c-73 93-112 189-119 298" stroke="#453b32" stroke-width="20" opacity=".42"/>
+</g>
+
+<!-- vegetation on rim -->
+<g fill="#466743"><ellipse cx="105" cy="518" rx="110" ry="52"/><ellipse cx="350" cy="495" rx="135" ry="57"/><ellipse cx="780" cy="505" rx="145" ry="58"/><ellipse cx="1150" cy="500" rx="120" ry="54"/><ellipse cx="1700" cy="510" rx="180" ry="63"/></g>
+<g stroke="#758d58" stroke-width="8" stroke-linecap="round"><path d="M250 556l-55-98M280 560l15-113M1640 553l-40-98M1680 555l28-111M780 548l-20-91"/></g>
+</svg>
