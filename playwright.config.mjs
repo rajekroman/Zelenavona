@@ -20,15 +20,15 @@ export default defineConfig({
   projects: [
     {
       name: "desktop",
-      use: { ...devices["Desktop Chrome"], viewport: { width: 1280, height: 720 } }
+      use: { ...devices["Desktop Chrome"], browserName: "chromium", viewport: { width: 1280, height: 720 } }
     },
     {
       name: "iphone-portrait",
-      use: { ...iphone13, viewport: { width: 390, height: 844 }, screen: { width: 390, height: 844 } }
+      use: { ...iphone13, browserName: "chromium", viewport: { width: 390, height: 844 }, screen: { width: 390, height: 844 } }
     },
     {
       name: "iphone-landscape",
-      use: { ...iphone13, viewport: { width: 844, height: 390 }, screen: { width: 844, height: 390 } }
+      use: { ...iphone13, browserName: "chromium", viewport: { width: 844, height: 390 }, screen: { width: 844, height: 390 } }
     }
   ],
   webServer: {
