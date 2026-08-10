@@ -4,6 +4,7 @@ import { ActorRenderer } from "./actorRenderer.js";
 import { TractorPatrol } from "./tractor.js";
 import { ForestPressure } from "./forestPressure.js";
 import { PitInstability } from "./pitInstability.js";
+import { CrowdRisk } from "./crowdRisk.js";
 import { WORLD, resolveLevel, clampPlayer, availableAction, objectiveForStep } from "./world.js";
 
 const $ = selector => document.querySelector(selector);
@@ -26,7 +27,9 @@ const meterLabel = $("#meterLabel");
 $("#missionNumber").textContent = String(level.number);
 $("#levelLabel").textContent = level.label;
 $("#loadingLabel").textContent = level.label;
-if (meterLabel) meterLabel.textContent = level.id === "besednice" ? "STABILITA" : "KLID";
+if (meterLabel) {
+  meterLabel.textContent = level.id === "besednice" ? "STABILITA" : level.id === "slavie" ? "POZORNOST" : "KLID";
+}
 canvas.setAttribute("aria-label", `Herní plocha ${level.title}`);
 document.title = `Lovec vltavínů — ${level.title}`;
 
@@ -38,6 +41,7 @@ const state = {
   hazardCooldown: 0,
   forestPressure: 0,
   pitInstability: 0,
+  crowdRisk: 0,
   inRiskZone: false,
   keys: new Set(),
   touchMove: { x: 0, y: 0 },
@@ -48,6 +52,7 @@ const playerAnimator = new ActorAnimator();
 const tractor = level.id === "chlum" ? new TractorPatrol({ minX: 280, maxX: 1540, y: 715, speed: 118 }) : null;
 const forestPressure = level.pressure ? new ForestPressure(level.pressure) : null;
 const pitInstability = level.instability ? new PitInstability(level.instability) : null;
+const crowdRisk = level.crowdRisk ? new CrowdRisk(level.crowdRisk) : null;
 const camera = new FollowCamera({ worldWidth: WORLD.width, worldHeight: WORLD.height, damping: 7.5, deadZone: 82 });
 let dpr = 1;
 let viewport = { width: innerWidth, height: innerHeight };
@@ -67,6 +72,7 @@ actorRenderer.load({
   vaclav: "./assets/actors/vaclav-v7.svg",
   forester: "./assets/actors/forester-v7.svg",
   pitkeeper: "./assets/actors/pitkeeper-v7.svg",
+  organizer: "./assets/actors/organizer-v7.svg",
   tractor: "./assets/actors/tractor-v7.svg"
 }).then(() => { actorAssetsReady = true; finishLoading(); }).catch(error => {
   console.warn(error);
@@ -113,7 +119,7 @@ function withWorldTransform(callback) {
 }
 
 function drawFallbackPlate() {
-  const fallback = level.id === "nesmen" ? "#334633" : level.id === "besednice" ? "#866b4b" : "#392d22";
+  const fallback = level.id === "nesmen" ? "#334633" : level.id === "besednice" ? "#866b4b" : level.id === "slavie" ? "#78846a" : "#392d22";
   ctx.fillStyle = fallback;
   ctx.fillRect(0, 0, WORLD.width, WORLD.height);
 }
@@ -166,6 +172,13 @@ function drawHazard() {
     ctx.fillRect(0, 0, viewport.width, viewport.height);
     ctx.restore();
   }
+  if (crowdRisk && state.inRiskZone) {
+    const alpha = Math.min(.18, .035 + state.crowdRisk / 760);
+    ctx.save();
+    ctx.fillStyle = `rgba(70,38,38,${alpha})`;
+    ctx.fillRect(0, 0, viewport.width, viewport.height);
+    ctx.restore();
+  }
 }
 
 function drawSearchAndFinding(time) {
@@ -201,6 +214,7 @@ function drawSearchAndFinding(time) {
 
 function hazardMeterValue() {
   if (pitInstability) return state.pitInstability;
+  if (crowdRisk) return state.crowdRisk;
   return state.forestPressure;
 }
 
@@ -225,7 +239,8 @@ function performAction() {
     const messages = {
       chlum: "Václav: Po dešti se podívej do čerstvých brázd.",
       nesmen: "Lesník: Hledej tam, kde voda odkryla štěrkový profil.",
-      besednice: "Správce: Čerstvý jílový řez je vpravo pod stěnou. Drž se dál od měkkého okraje."
+      besednice: "Správce: Čerstvý jílový řez je vpravo pod stěnou. Drž se dál od měkkého okraje.",
+      slavie: "Pořadatel: Vltavíny najdeš u stolů na druhé straně plochy. V davu si hlídej věci."
     };
     showToast(messages[level.id] ?? "Prozkoumej označené místo.");
   } else if (action.kind === "search") {
@@ -234,14 +249,15 @@ function performAction() {
     const messages = {
       chlum: "Něco zeleného se zalesklo v blátě.",
       nesmen: "Pod kořeny se leskne čerstvě odkrytý štěrk.",
-      besednice: "V jílu se otevřela štěrková kapsa s tmavšími valouny."
+      besednice: "V jílu se otevřela štěrková kapsa s tmavšími valouny.",
+      slavie: "Na stole leží několik zelených kamenů — jeden stojí za bližší kontrolu."
     };
     showToast(messages[level.id] ?? "Něco se zalesklo v odkryvu.");
   } else if (action.kind === "collect") {
     playerAnimator.play(ACTOR_STATE.PICKUP, .7);
     state.step = 3;
     state.completed = true;
-    showToast(`Vltavín nalezen — ${level.title} dokončena.`);
+    showToast(level.id === "slavie" ? "Pravý vltavín potvrzen — Slávie dokončena." : `Vltavín nalezen — ${level.title} dokončena.`);
   }
   updateHud();
 }
@@ -295,8 +311,10 @@ function resetPlayerFromHazard(message) {
   state.hazardCooldown = 1.5;
   forestPressure?.reset();
   pitInstability?.reset();
+  crowdRisk?.reset();
   state.forestPressure = 0;
   state.pitInstability = 0;
+  state.crowdRisk = 0;
   state.inRiskZone = false;
   camera.snap(state.player, viewport);
   showToast(message);
@@ -331,6 +349,16 @@ function updateHazard(simDt, realDt = simDt) {
     if (state.hazardCooldown <= 0 && result.collapsed && state.step > 0 && !state.completed) {
       resetPlayerFromHazard("Jílový okraj se sesunul — vrať se na pevné dno pískovny.");
     }
+    return;
+  }
+
+  if (crowdRisk) {
+    const result = crowdRisk.update(state.player, hazardDt);
+    state.crowdRisk = result.value;
+    state.inRiskZone = result.inRisk;
+    if (state.hazardCooldown <= 0 && result.robbed && state.step > 0 && !state.completed) {
+      resetPlayerFromHazard("Byl jsi okraden — vrať se k okraji akce a dávej pozor v davu.");
+    }
   }
 }
 
@@ -362,4 +390,4 @@ camera.setView(cameraViewForViewport(viewport), viewport);
 camera.snap(state.player, viewport);
 updateHud();
 requestAnimationFrame(frame);
-window.__zelenaVlna = { state, level, camera, animator: playerAnimator, actorRenderer, tractor, forestPressure, pitInstability, WORLD };
+window.__zelenaVlna = { state, level, camera, animator: playerAnimator, actorRenderer, tractor, forestPressure, pitInstability, crowdRisk, WORLD };
