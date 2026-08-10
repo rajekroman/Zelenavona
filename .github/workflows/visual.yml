@@ -1,4 +1,4 @@
-name: Chlum E2E + Visual QA
+name: V7 E2E + Visual QA
 
 on:
   pull_request:
@@ -26,7 +26,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@v5
         with:
-          name: chlum-visual-evidence
+          name: v7-visual-evidence
           path: |
             test-results/
             playwright-report/
