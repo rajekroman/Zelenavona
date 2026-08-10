@@ -51,6 +51,12 @@ export class FollowCamera {
   }
 
   clamp(viewport) {
+    const coverZoom = Math.max(
+      viewport.width / this.worldWidth,
+      viewport.height / this.worldHeight
+    ) * 1.08;
+    this.zoom = Math.max(this.zoom, coverZoom);
+
     const halfW = viewport.width / (2 * this.zoom);
     const halfH = viewport.height / (2 * this.zoom);
     const minX = Math.min(halfW, this.worldWidth / 2);
