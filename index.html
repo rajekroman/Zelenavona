@@ -11,6 +11,7 @@
 <body>
   <main id="app">
     <canvas id="game" aria-label="Herní plocha Chlum"></canvas>
+    <canvas id="foreground" aria-hidden="true"></canvas>
 
     <section id="hud" aria-live="polite">
       <div class="mission-card">
@@ -34,5 +35,6 @@
     <div id="loading" class="loading"><strong>CHLUM</strong><span>Načítám lokalitu…</span></div>
   </main>
   <script type="module" src="./src/main.js"></script>
+  <script type="module" src="./src/foregroundLayer.js"></script>
 </body>
 </html>
