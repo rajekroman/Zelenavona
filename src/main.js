@@ -3,6 +3,7 @@ import { ACTOR_STATE, ActorAnimator } from "./animation.js";
 import { ActorRenderer } from "./actorRenderer.js";
 import { TractorPatrol } from "./tractor.js";
 import { ForestPressure } from "./forestPressure.js";
+import { PitInstability } from "./pitInstability.js";
 import { WORLD, resolveLevel, clampPlayer, availableAction, objectiveForStep } from "./world.js";
 
 const $ = selector => document.querySelector(selector);
@@ -20,10 +21,12 @@ const stick = $("#stick");
 const toast = $("#toast");
 const loading = $("#loading");
 const calmFill = $("#calmFill");
+const meterLabel = $("#meterLabel");
 
 $("#missionNumber").textContent = String(level.number);
 $("#levelLabel").textContent = level.label;
 $("#loadingLabel").textContent = level.label;
+if (meterLabel) meterLabel.textContent = level.id === "besednice" ? "STABILITA" : "KLID";
 canvas.setAttribute("aria-label", `Herní plocha ${level.title}`);
 document.title = `Lovec vltavínů — ${level.title}`;
 
@@ -34,6 +37,7 @@ const state = {
   paused: false,
   hazardCooldown: 0,
   forestPressure: 0,
+  pitInstability: 0,
   inRiskZone: false,
   keys: new Set(),
   touchMove: { x: 0, y: 0 },
@@ -43,6 +47,7 @@ const state = {
 const playerAnimator = new ActorAnimator();
 const tractor = level.id === "chlum" ? new TractorPatrol({ minX: 280, maxX: 1540, y: 715, speed: 118 }) : null;
 const forestPressure = level.pressure ? new ForestPressure(level.pressure) : null;
+const pitInstability = level.instability ? new PitInstability(level.instability) : null;
 const camera = new FollowCamera({ worldWidth: WORLD.width, worldHeight: WORLD.height, damping: 7.5, deadZone: 82 });
 let dpr = 1;
 let viewport = { width: innerWidth, height: innerHeight };
@@ -61,6 +66,7 @@ actorRenderer.load({
   hunter: "./assets/actors/hunter-v7.svg",
   vaclav: "./assets/actors/vaclav-v7.svg",
   forester: "./assets/actors/forester-v7.svg",
+  pitkeeper: "./assets/actors/pitkeeper-v7.svg",
   tractor: "./assets/actors/tractor-v7.svg"
 }).then(() => { actorAssetsReady = true; finishLoading(); }).catch(error => {
   console.warn(error);
@@ -104,7 +110,8 @@ function withWorldTransform(callback) {
 }
 
 function drawFallbackPlate() {
-  ctx.fillStyle = level.id === "nesmen" ? "#334633" : "#392d22";
+  const fallback = level.id === "nesmen" ? "#334633" : level.id === "besednice" ? "#866b4b" : "#392d22";
+  ctx.fillStyle = fallback;
   ctx.fillRect(0, 0, WORLD.width, WORLD.height);
 }
 
@@ -114,7 +121,7 @@ function drawWorldBackground() {
 
 function drawNpc() {
   const p = camera.worldToScreen(level.npc, viewport);
-  actorRenderer.draw(level.npc.id === "forester" ? "forester" : "vaclav", level.npc, { scale: 1.04 });
+  actorRenderer.draw(level.npc.id, level.npc, { scale: 1.04 });
   if (state.step === 0) {
     const s = Math.min(1.05, camera.zoom / .72);
     ctx.save();
@@ -142,6 +149,16 @@ function drawHazard() {
     const gradient = ctx.createRadialGradient(viewport.width / 2, viewport.height / 2, viewport.height * .15, viewport.width / 2, viewport.height / 2, viewport.height * .72);
     gradient.addColorStop(0, "rgba(12,24,13,0)");
     gradient.addColorStop(1, `rgba(8,18,10,${alpha})`);
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, viewport.width, viewport.height);
+    ctx.restore();
+  }
+  if (pitInstability && state.inRiskZone) {
+    const alpha = Math.min(.2, .04 + state.pitInstability / 700);
+    ctx.save();
+    const gradient = ctx.createLinearGradient(0, viewport.height * .45, 0, viewport.height);
+    gradient.addColorStop(0, "rgba(92,62,36,0)");
+    gradient.addColorStop(1, `rgba(73,43,24,${alpha})`);
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, viewport.width, viewport.height);
     ctx.restore();
@@ -179,6 +196,11 @@ function drawSearchAndFinding(time) {
   }
 }
 
+function hazardMeterValue() {
+  if (pitInstability) return state.pitInstability;
+  return state.forestPressure;
+}
+
 function updateHud() {
   objective.textContent = objectiveForStep(state.step, level);
   state.action = availableAction(state, level);
@@ -189,7 +211,7 @@ function updateHud() {
   const label = state.action?.label ?? "AKCE";
   promptText.textContent = label;
   actionLabel.textContent = label;
-  if (calmFill) calmFill.style.width = `${Math.max(0, 100 - state.forestPressure)}%`;
+  if (calmFill) calmFill.style.width = `${Math.max(0, 100 - hazardMeterValue())}%`;
 }
 
 function performAction() {
@@ -197,11 +219,21 @@ function performAction() {
   if (!action || state.paused) return;
   if (action.kind === "talk") {
     state.step = 1;
-    showToast(level.id === "nesmen" ? "Lesník: Hledej tam, kde voda odkryla štěrkový profil." : "Václav: Po dešti se podívej do čerstvých brázd.");
+    const messages = {
+      chlum: "Václav: Po dešti se podívej do čerstvých brázd.",
+      nesmen: "Lesník: Hledej tam, kde voda odkryla štěrkový profil.",
+      besednice: "Správce: Čerstvý jílový řez je vpravo pod stěnou. Drž se dál od měkkého okraje."
+    };
+    showToast(messages[level.id] ?? "Prozkoumej označené místo.");
   } else if (action.kind === "search") {
     playerAnimator.play(ACTOR_STATE.SEARCH, .7);
     state.step = 2;
-    showToast(level.id === "nesmen" ? "Pod kořeny se leskne čerstvě odkrytý štěrk." : "Něco zeleného se zalesklo v blátě.");
+    const messages = {
+      chlum: "Něco zeleného se zalesklo v blátě.",
+      nesmen: "Pod kořeny se leskne čerstvě odkrytý štěrk.",
+      besednice: "V jílu se otevřela štěrková kapsa s tmavšími valouny."
+    };
+    showToast(messages[level.id] ?? "Něco se zalesklo v odkryvu.");
   } else if (action.kind === "collect") {
     playerAnimator.play(ACTOR_STATE.PICKUP, .7);
     state.step = 3;
@@ -259,7 +291,9 @@ function resetPlayerFromHazard(message) {
   state.keys.clear();
   state.hazardCooldown = 1.5;
   forestPressure?.reset();
+  pitInstability?.reset();
   state.forestPressure = 0;
+  state.pitInstability = 0;
   state.inRiskZone = false;
   camera.snap(state.player, viewport);
   showToast(message);
@@ -283,6 +317,16 @@ function updateHazard(simDt, realDt = simDt) {
     state.inRiskZone = result.inRisk;
     if (state.hazardCooldown <= 0 && result.caught && state.step > 0 && !state.completed) {
       resetPlayerFromHazard("Lesník tě zahlédl — vrať se k okraji lesa a počkej, až se situace uklidní.");
+    }
+    return;
+  }
+
+  if (pitInstability) {
+    const result = pitInstability.update(state.player, hazardDt);
+    state.pitInstability = result.value;
+    state.inRiskZone = result.inRisk;
+    if (state.hazardCooldown <= 0 && result.collapsed && state.step > 0 && !state.completed) {
+      resetPlayerFromHazard("Jílový okraj se sesunul — vrať se na pevné dno pískovny.");
     }
   }
 }
@@ -315,4 +359,4 @@ camera.setView(cameraViewForViewport(viewport), viewport);
 camera.snap(state.player, viewport);
 updateHud();
 requestAnimationFrame(frame);
-window.__zelenaVlna = { state, level, camera, animator: playerAnimator, actorRenderer, tractor, forestPressure, WORLD };
+window.__zelenaVlna = { state, level, camera, animator: playerAnimator, actorRenderer, tractor, forestPressure, pitInstability, WORLD };
