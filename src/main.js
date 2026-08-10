@@ -1,5 +1,6 @@
 import { FollowCamera } from "./camera.js";
 import { ACTOR_STATE, ActorAnimator } from "./animation.js";
+import { ActorRenderer } from "./actorRenderer.js";
 import { CHLUM_PLATE } from "./plateData.js";
 import { TractorPatrol } from "./tractor.js";
 import { WORLD, CHLUM, clampPlayer, availableAction, objectiveForStep } from "./world.js";
@@ -31,15 +32,32 @@ const state = {
 const playerAnimator = new ActorAnimator();
 const tractor = new TractorPatrol({ minX: 280, maxX: 1540, y: 715, speed: 118 });
 const camera = new FollowCamera({ worldWidth: WORLD.width, worldHeight: WORLD.height, damping: 7.5, deadZone: 82 });
-const plate = new Image();
-let plateReady = false;
-plate.onload = () => { plateReady = true; loading.classList.add("hidden"); };
-plate.onerror = () => loading.classList.add("hidden");
-plate.src = CHLUM_PLATE;
-setTimeout(() => loading.classList.add("hidden"), 1800);
 
 let dpr = 1;
 let viewport = { width: innerWidth, height: innerHeight };
+const actorRenderer = new ActorRenderer({ ctx, camera, viewport: () => viewport });
+
+const plate = new Image();
+let plateReady = false;
+let actorAssetsReady = false;
+function finishLoading() {
+  if (plateReady && actorAssetsReady) loading.classList.add("hidden");
+}
+plate.onload = () => { plateReady = true; finishLoading(); };
+plate.onerror = () => { plateReady = false; loading.classList.add("hidden"); };
+plate.src = CHLUM_PLATE;
+actorRenderer.load({
+  hunter: "./assets/actors/hunter-v7.svg",
+  vaclav: "./assets/actors/vaclav-v7.svg"
+}).then(() => {
+  actorAssetsReady = true;
+  finishLoading();
+}).catch(error => {
+  console.warn(error);
+  actorAssetsReady = false;
+  loading.classList.add("hidden");
+});
+setTimeout(() => loading.classList.add("hidden"), 2200);
 
 function cameraViewForViewport({ width, height }) {
   const portrait = height > width * 1.15;
@@ -111,48 +129,10 @@ function drawWorldBackground() {
   });
 }
 
-function actorScreenScale(scale = 1) {
-  return scale * Math.min(1.05, camera.zoom / 0.72);
-}
-
 function drawShadow(x, y, rx = 31, ry = 11, alpha = .34) {
   ctx.save();
   ctx.fillStyle = `rgba(0,0,0,${alpha})`;
   ctx.beginPath(); ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.restore();
-}
-
-function drawPerson(point, colors, { scale = 1, facing = 0, pose = null } = {}) {
-  const p = camera.worldToScreen(point, viewport);
-  const renderScale = actorScreenScale(scale);
-  const bob = (pose?.bob ?? 0) * renderScale;
-  const stride = pose?.stride ?? 0;
-  const lean = pose?.lean ?? 0;
-  const reach = pose?.reach ?? 0;
-  drawShadow(p.x, p.y + 10 * renderScale, 28 * renderScale, 10 * renderScale);
-  ctx.save();
-  ctx.translate(p.x, p.y - bob);
-  ctx.scale(renderScale, renderScale);
-  ctx.rotate(lean * .18 * (facing || 1));
-  ctx.strokeStyle = colors.legs;
-  ctx.lineWidth = 10;
-  ctx.lineCap = "round";
-  ctx.beginPath();
-  ctx.moveTo(-8, 1); ctx.lineTo(-10 + stride * .35, 35);
-  ctx.moveTo(8, 1); ctx.lineTo(10 - stride * .35, 35);
-  ctx.stroke();
-  ctx.fillStyle = colors.body;
-  ctx.beginPath(); ctx.roundRect(-20, -48, 40, 54, 11); ctx.fill();
-  ctx.strokeStyle = colors.body;
-  ctx.lineWidth = 8;
-  ctx.beginPath();
-  ctx.moveTo(-16, -34); ctx.lineTo(-25 - reach * .35, -5 + reach);
-  ctx.moveTo(16, -34); ctx.lineTo(24 + reach * .35, -5 + reach);
-  ctx.stroke();
-  ctx.fillStyle = colors.head;
-  ctx.beginPath(); ctx.arc(0, -61, 13, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = colors.hair;
-  ctx.beginPath(); ctx.arc(facing * 3, -65, 12, Math.PI, Math.PI * 2); ctx.fill();
   ctx.restore();
 }
 
@@ -188,19 +168,23 @@ function drawTractor() {
 function drawVaclav() {
   const p = camera.worldToScreen(CHLUM.vaclav, viewport);
   const ringScale = Math.min(1.05, camera.zoom / 0.72);
-  drawPerson(CHLUM.vaclav, { body: "#69533b", legs: "#37342e", head: "#d2aa7d", hair: "#795827" }, { scale: 1.02 });
+  actorRenderer.draw("vaclav", CHLUM.vaclav, { scale: 1.04 });
   if (state.step === 0) {
-    ctx.save(); ctx.strokeStyle = "#b8f6bd"; ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.ellipse(p.x, p.y + 17 * ringScale, 48 * ringScale, 19 * ringScale, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.save();
+    ctx.strokeStyle = "#b8f6bd";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.ellipse(p.x, p.y + 10 * ringScale, 43 * ringScale, 16 * ringScale, 0, 0, Math.PI * 2);
+    ctx.stroke();
     ctx.restore();
   }
 }
 
 let playerPose = playerAnimator.pose();
 function drawPlayer() {
-  drawPerson(state.player, { body: "#315e37", legs: "#4b4636", head: "#d3ab82", hair: "#23221e" }, {
-    scale: 1.05,
-    facing: Math.sign(state.player.facingX),
+  actorRenderer.draw("hunter", state.player, {
+    scale: 1.08,
+    facingX: state.player.facingX,
     pose: playerPose
   });
 }
@@ -211,17 +195,28 @@ function drawSearchAndFinding(time) {
     const scale = Math.min(1, camera.zoom / .72);
     ctx.save();
     ctx.strokeStyle = `rgba(205,239,205,${.3 + .2 * Math.sin(time * 3)})`;
-    ctx.lineWidth = 2; ctx.setLineDash([8, 8]);
-    ctx.beginPath(); ctx.ellipse(p.x, p.y, 78 * scale, 32 * scale, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.lineWidth = 2;
+    ctx.setLineDash([8, 8]);
+    ctx.beginPath();
+    ctx.ellipse(p.x, p.y, 78 * scale, 32 * scale, 0, 0, Math.PI * 2);
+    ctx.stroke();
     ctx.restore();
   }
   if (state.step === 2) {
     const p = camera.worldToScreen(CHLUM.finding, viewport);
     const pulse = (1 + Math.sin(time * 5) * .15) * Math.min(1, camera.zoom / .72);
-    ctx.save(); ctx.translate(p.x, p.y); ctx.scale(pulse, pulse); ctx.rotate(.6);
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.scale(pulse, pulse);
+    ctx.rotate(.6);
     ctx.fillStyle = "#55b876";
-    ctx.beginPath(); ctx.moveTo(0, -14); ctx.lineTo(10, -2); ctx.lineTo(6, 13); ctx.lineTo(-9, 8); ctx.lineTo(-12, -5); ctx.closePath(); ctx.fill();
-    ctx.strokeStyle = "rgba(215,255,222,.82)"; ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
+    ctx.beginPath();
+    ctx.moveTo(0, -14); ctx.lineTo(10, -2); ctx.lineTo(6, 13); ctx.lineTo(-9, 8); ctx.lineTo(-12, -5); ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = "rgba(215,255,222,.82)";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.restore();
   }
 }
 
@@ -259,9 +254,13 @@ function performAction() {
 actionButton.addEventListener("pointerdown", event => { event.preventDefault(); performAction(); });
 addEventListener("keydown", event => {
   if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "KeyW", "KeyA", "KeyS", "KeyD"].includes(event.code)) {
-    state.keys.add(event.code); event.preventDefault();
+    state.keys.add(event.code);
+    event.preventDefault();
   }
-  if (event.code === "KeyE" || event.code === "Space") { performAction(); event.preventDefault(); }
+  if (event.code === "KeyE" || event.code === "Space") {
+    performAction();
+    event.preventDefault();
+  }
 });
 addEventListener("keyup", event => state.keys.delete(event.code));
 addEventListener("blur", () => state.keys.clear());
@@ -279,7 +278,10 @@ function setJoystick(clientX, clientY) {
   let dx = clientX - cx;
   let dy = clientY - cy;
   const length = Math.hypot(dx, dy) || 1;
-  if (length > max) { dx = dx / length * max; dy = dy / length * max; }
+  if (length > max) {
+    dx = dx / length * max;
+    dy = dy / length * max;
+  }
   state.touchMove.x = dx / max;
   state.touchMove.y = dy / max;
   stick.style.transform = `translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px))`;
@@ -295,7 +297,8 @@ moveZone.addEventListener("pointermove", event => {
 function resetJoystick(event) {
   if (joystickPointer === null || (event && event.pointerId !== joystickPointer)) return;
   joystickPointer = null;
-  state.touchMove.x = 0; state.touchMove.y = 0;
+  state.touchMove.x = 0;
+  state.touchMove.y = 0;
   stick.style.transform = "translate(-50%,-50%)";
 }
 moveZone.addEventListener("pointerup", resetJoystick);
@@ -309,7 +312,10 @@ function movementVector() {
   if (state.keys.has("ArrowUp") || state.keys.has("KeyW")) y -= 1;
   if (state.keys.has("ArrowDown") || state.keys.has("KeyS")) y += 1;
   const length = Math.hypot(x, y);
-  if (length > 1) { x /= length; y /= length; }
+  if (length > 1) {
+    x /= length;
+    y /= length;
+  }
   return { x, y };
 }
 
@@ -361,4 +367,4 @@ camera.setView(cameraViewForViewport(viewport), viewport);
 camera.snap(state.player, viewport);
 updateHud();
 requestAnimationFrame(frame);
-window.__zelenaVlna = { state, camera, animator: playerAnimator, tractor, WORLD, CHLUM };
+window.__zelenaVlna = { state, camera, animator: playerAnimator, actorRenderer, tractor, WORLD, CHLUM };
