@@ -3,6 +3,7 @@ import { LEVELS, WORLD, resolveLevel } from "./levels.js";
 export { WORLD, LEVELS, resolveLevel };
 export const CHLUM = LEVELS.chlum;
 export const NESMEN = LEVELS.nesmen;
+export const BESEDNICE = LEVELS.besednice;
 
 export function clampPlayer(player, level = CHLUM) {
   const margin = 70;

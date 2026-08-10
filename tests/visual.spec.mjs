@@ -17,8 +17,9 @@ async function runtime(page) {
 }
 
 for (const scenario of [
-  { id: "chlum", label: "CHLUM", objective: "Promluv s Václavem" },
-  { id: "nesmen", label: "NESMĚŇ", objective: "Promluv s lesníkem" }
+  { id: "chlum", label: "CHLUM", objective: "Promluv s Václavem", meter: "KLID" },
+  { id: "nesmen", label: "NESMĚŇ", objective: "Promluv s lesníkem", meter: "KLID" },
+  { id: "besednice", label: "BESEDNICE", objective: "Promluv se správcem", meter: "STABILITA" }
 ]) {
   test(`${scenario.label} V7 renders a stable visual baseline`, async ({ page }, testInfo) => {
     await page.goto(`/?level=${scenario.id}`, { waitUntil: "domcontentloaded" });
@@ -28,6 +29,7 @@ for (const scenario of [
     await expect(page.locator("#loading")).toHaveClass(/hidden/);
     await expect(page.locator("#levelLabel")).toHaveText(scenario.label);
     await expect(page.locator("#objective")).toHaveText(scenario.objective);
+    await expect(page.locator("#meterLabel")).toHaveText(scenario.meter);
     await expect(page.locator("#game")).toBeVisible();
     await expect(page.locator("#foreground")).toBeVisible();
 

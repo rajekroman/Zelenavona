@@ -1,8 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { CHLUM, NESMEN, WORLD, availableAction, clampPlayer, objectiveForStep } from "../src/world.js";
+import { CHLUM, NESMEN, BESEDNICE, WORLD, availableAction, clampPlayer, objectiveForStep } from "../src/world.js";
 
-for (const level of [CHLUM, NESMEN]) {
+for (const level of [CHLUM, NESMEN, BESEDNICE]) {
   test(`${level.title} player stays inside authored playable bounds`, () => {
     const player = { x: -500, y: 9000 };
     clampPlayer(player, level);
@@ -36,4 +36,11 @@ test("Nesmen has its own forest-specific objective sequence", () => {
   assert.equal(objectiveForStep(1, NESMEN), "Najdi odkrytý profil");
   assert.equal(objectiveForStep(2, NESMEN), "Prohledej kořeny a štěrk");
   assert.equal(objectiveForStep(3, NESMEN), "Nesměň dokončena");
+});
+
+test("Besednice has its own clay-pit objective sequence", () => {
+  assert.equal(objectiveForStep(0, BESEDNICE), "Promluv se správcem");
+  assert.equal(objectiveForStep(1, BESEDNICE), "Najdi čerstvý jílový řez");
+  assert.equal(objectiveForStep(2, BESEDNICE), "Prohledej štěrkovou kapsu");
+  assert.equal(objectiveForStep(3, BESEDNICE), "Besednice dokončena");
 });
