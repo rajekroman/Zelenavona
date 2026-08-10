@@ -7,6 +7,7 @@ async function runtime(page) {
     step: window.__zelenaVlna?.state?.step ?? -1,
     completed: Boolean(window.__zelenaVlna?.state?.completed),
     forestPressure: window.__zelenaVlna?.state?.forestPressure ?? 0,
+    pitInstability: window.__zelenaVlna?.state?.pitInstability ?? 0,
     player: window.__zelenaVlna?.state?.player ? { ...window.__zelenaVlna.state.player } : null
   }));
 }
@@ -63,6 +64,12 @@ for (const scenario of [
     url: "/?level=nesmen",
     label: "NESMĚŇ",
     objectives: ["Najdi odkrytý profil", "Prohledej kořeny a štěrk", "Nesměň dokončena"]
+  },
+  {
+    id: "besednice",
+    url: "/?level=besednice",
+    label: "BESEDNICE",
+    objectives: ["Najdi čerstvý jílový řez", "Prohledej štěrkovou kapsu", "Besednice dokončena"]
   }
 ]) {
   test(`${scenario.label} quest completes through the shared contextual runtime`, async ({ page }, testInfo) => {
@@ -92,6 +99,7 @@ for (const scenario of [
 test("NESMĚŇ risk zone drains KLID and eventually sends the hunter back to the forest edge", async ({ page }) => {
   await page.goto("/?level=nesmen", { waitUntil: "domcontentloaded" });
   await expect.poll(async () => (await runtime(page)).ready).toBe(true);
+  await expect(page.locator("#meterLabel")).toHaveText("KLID");
   await page.evaluate(() => {
     const runtime = window.__zelenaVlna;
     const zone = runtime.level.pressure.zone;
@@ -115,4 +123,33 @@ test("NESMĚŇ risk zone drains KLID and eventually sends the hunter back to the
     return Math.hypot(current.player.x - spawn.x, current.player.y - spawn.y);
   }, { timeout: 5000 }).toBeLessThan(5);
   await expect.poll(async () => (await runtime(page)).forestPressure).toBe(0);
+});
+
+test("BESEDNICE unstable clay edge drains STABILITA and collapses back to safe ground", async ({ page }) => {
+  await page.goto("/?level=besednice", { waitUntil: "domcontentloaded" });
+  await expect.poll(async () => (await runtime(page)).ready).toBe(true);
+  await expect(page.locator("#meterLabel")).toHaveText("STABILITA");
+  await page.evaluate(() => {
+    const runtime = window.__zelenaVlna;
+    const zone = runtime.level.instability.zone;
+    runtime.state.step = 1;
+    runtime.state.hazardCooldown = 0;
+    runtime.state.player.x = zone.x + zone.width / 2;
+    runtime.state.player.y = zone.y + zone.height / 2;
+    runtime.pitInstability.reset();
+  });
+
+  await expect.poll(async () => (await runtime(page)).pitInstability, { timeout: 3000 }).toBeGreaterThan(10);
+  await expect.poll(async () => page.locator("#calmFill").evaluate(node => {
+    const width = parseFloat(getComputedStyle(node).width);
+    const trackWidth = parseFloat(getComputedStyle(node.parentElement).width);
+    return trackWidth > 0 ? width / trackWidth : 1;
+  }), { timeout: 3000 }).toBeLessThan(.95);
+
+  await expect.poll(async () => {
+    const current = await runtime(page);
+    const spawn = await page.evaluate(() => window.__zelenaVlna.level.spawn);
+    return Math.hypot(current.player.x - spawn.x, current.player.y - spawn.y);
+  }, { timeout: 6000 }).toBeLessThan(5);
+  await expect.poll(async () => (await runtime(page)).pitInstability).toBe(0);
 });
