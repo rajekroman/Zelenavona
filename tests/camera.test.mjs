@@ -46,3 +46,14 @@ test("vertical focus offset deliberately composes the player below screen center
   assert.ok(projected.y > viewport.height * .65);
   assert.ok(projected.y < viewport.height * .85);
 });
+
+test("portrait camera always covers the authored world without black bars", () => {
+  const viewport = { width: 390, height: 844 };
+  const camera = new FollowCamera({ worldWidth: 1920, worldHeight: 1440, zoom: .58, focusOffsetY: 250 });
+  camera.snap({ x: 620, y: 1040 }, viewport);
+  assert.ok(camera.zoom * 1440 > viewport.height);
+  assert.ok(camera.zoom * 1920 > viewport.width);
+  const projected = camera.worldToScreen({ x: 620, y: 1040 }, viewport);
+  assert.ok(projected.y > viewport.height * .62);
+  assert.ok(projected.y < viewport.height * .82);
+});
