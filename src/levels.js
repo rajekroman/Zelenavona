@@ -6,7 +6,7 @@ export const LEVELS = Object.freeze({
     number: 1,
     label: "CHLUM",
     title: "Chlum",
-    plate: "./assets/chlum/chlum-v7-plate.svg",
+    plate: "./assets/chlum/chlum-v7-plate-prod.svg",
     foreground: "./assets/chlum/chlum-v7-foreground.svg",
     spawn: { x: 820, y: 1050 },
     npc: { id: "vaclav", x: 1070, y: 930 },
