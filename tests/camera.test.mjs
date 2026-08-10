@@ -1,0 +1,28 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { FollowCamera } from "../src/camera.js";
+
+test("camera snaps to player and remains inside world bounds", () => {
+  const camera = new FollowCamera({ worldWidth: 1920, worldHeight: 1440 });
+  camera.snap({ x: 10, y: 10 }, { width: 1280, height: 720 });
+  assert.equal(camera.x, 640);
+  assert.equal(camera.y, 360);
+});
+
+test("camera keeps small movement inside dead zone", () => {
+  const camera = new FollowCamera({ worldWidth: 1920, worldHeight: 1440, deadZone: 80 });
+  const viewport = { width: 900, height: 600 };
+  camera.snap({ x: 900, y: 800 }, viewport);
+  camera.update({ x: 940, y: 820 }, viewport, 1 / 60);
+  assert.equal(camera.x, 900);
+  assert.equal(camera.y, 800);
+});
+
+test("camera damps movement after leaving dead zone", () => {
+  const camera = new FollowCamera({ worldWidth: 1920, worldHeight: 1440, damping: 8, deadZone: 50 });
+  const viewport = { width: 900, height: 600 };
+  camera.snap({ x: 900, y: 800 }, viewport);
+  camera.update({ x: 1200, y: 800 }, viewport, 1 / 60);
+  assert.ok(camera.x > 900);
+  assert.ok(camera.x < 1150);
+});
