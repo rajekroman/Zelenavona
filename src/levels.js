@@ -34,6 +34,13 @@ export const LEVELS = Object.freeze({
     finding: { x: 1425, y: 705 },
     speed: 218,
     minY: 365,
+    pressure: {
+      zone: { x: 1030, y: 560, width: 620, height: 420 },
+      gainPerSecond: 34,
+      recoverPerSecond: 26,
+      threshold: 100,
+      catchRadius: 74
+    },
     objectives: ["Promluv s lesníkem", "Najdi odkrytý profil", "Prohledej kořeny a štěrk", "Nesměň dokončena"],
     actions: [
       { step: 0, target: "npc", radius: 105, kind: "talk", label: "MLUVIT" },
