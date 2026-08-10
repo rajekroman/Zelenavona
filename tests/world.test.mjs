@@ -1,28 +1,39 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { CHLUM, WORLD, availableAction, clampPlayer, objectiveForStep } from "../src/world.js";
+import { CHLUM, NESMEN, WORLD, availableAction, clampPlayer, objectiveForStep } from "../src/world.js";
 
-test("Chlum player stays inside authored playable bounds", () => {
-  const player = { x: -500, y: 9000 };
-  clampPlayer(player);
-  assert.equal(player.x, 70);
-  assert.equal(player.y, WORLD.height - 70);
+for (const level of [CHLUM, NESMEN]) {
+  test(`${level.title} player stays inside authored playable bounds`, () => {
+    const player = { x: -500, y: 9000 };
+    clampPlayer(player, level);
+    assert.equal(player.x, 70);
+    assert.equal(player.y, WORLD.height - 70);
+  });
+
+  test(`${level.title} progression exposes exactly one contextual action`, () => {
+    const state = { step: 0, player: { ...level.npc } };
+    assert.deepEqual(availableAction(state, level), { kind: "talk", label: "MLUVIT" });
+    state.step = 1;
+    state.player = { ...level.search };
+    assert.equal(availableAction(state, level)?.kind, "search");
+    state.step = 2;
+    state.player = { ...level.finding };
+    assert.deepEqual(availableAction(state, level), { kind: "collect", label: "SEBRAT" });
+    state.player = { x: 70, y: 70 };
+    assert.equal(availableAction(state, level), null);
+  });
+}
+
+test("Chlum objective labels remain unchanged", () => {
+  assert.equal(objectiveForStep(0, CHLUM), "Promluv s Václavem");
+  assert.equal(objectiveForStep(1, CHLUM), "Prohledej mokré brázdy");
+  assert.equal(objectiveForStep(2, CHLUM), "Seber nalezený vltavín");
+  assert.equal(objectiveForStep(3, CHLUM), "Chlum dokončen");
 });
 
-test("Chlum progression exposes exactly one contextual action", () => {
-  const state = { step: 0, player: { ...CHLUM.vaclav } };
-  assert.deepEqual(availableAction(state), { kind: "talk", label: "MLUVIT" });
-  state.step = 1;
-  state.player = { ...CHLUM.search };
-  assert.deepEqual(availableAction(state), { kind: "search", label: "HLEDAT" });
-  state.step = 2;
-  state.player = { ...CHLUM.finding };
-  assert.deepEqual(availableAction(state), { kind: "collect", label: "SEBRAT" });
-});
-
-test("objective labels follow the Chlum vertical slice", () => {
-  assert.equal(objectiveForStep(0), "Promluv s Václavem");
-  assert.equal(objectiveForStep(1), "Prohledej mokré brázdy");
-  assert.equal(objectiveForStep(2), "Seber nalezený vltavín");
-  assert.equal(objectiveForStep(3), "Chlum dokončen");
+test("Nesmen has its own forest-specific objective sequence", () => {
+  assert.equal(objectiveForStep(0, NESMEN), "Promluv s lesníkem");
+  assert.equal(objectiveForStep(1, NESMEN), "Najdi odkrytý profil");
+  assert.equal(objectiveForStep(2, NESMEN), "Prohledej kořeny a štěrk");
+  assert.equal(objectiveForStep(3, NESMEN), "Nesměň dokončena");
 });
