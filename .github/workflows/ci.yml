@@ -1,0 +1,23 @@
+name: V7 CI
+
+on:
+  push:
+    branches: [main, "v7/**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - name: Syntax
+        run: find src -type f -name '*.js' -print0 | xargs -0 -n1 node --check
+      - name: Unit tests
+        run: npm test

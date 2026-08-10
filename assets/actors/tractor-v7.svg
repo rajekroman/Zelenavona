@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="190" viewBox="0 0 300 190">
+  <defs>
+    <linearGradient id="body" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#496f43"/><stop offset=".52" stop-color="#2e5434"/><stop offset="1" stop-color="#193b28"/></linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#c0d0c8" stop-opacity=".9"/><stop offset="1" stop-color="#687e79" stop-opacity=".85"/></linearGradient>
+    <radialGradient id="tyre"><stop offset=".55" stop-color="#1e201d"/><stop offset=".58" stop-color="#776a46"/><stop offset=".72" stop-color="#262621"/><stop offset="1" stop-color="#11120f"/></radialGradient>
+    <filter id="s" x="-30%" y="-30%" width="170%" height="170%"><feDropShadow dx="0" dy="7" stdDeviation="5" flood-color="#0b0c09" flood-opacity=".45"/></filter>
+  </defs>
+  <g filter="url(#s)" stroke="#172319" stroke-width="4" stroke-linejoin="round">
+    <ellipse cx="157" cy="164" rx="105" ry="15" fill="#0c0e0b" opacity=".3" stroke="none"/>
+    <path d="M52 123h103l20-49h66l19 56H74z" fill="url(#body)"/>
+    <path d="M157 77h75l-8-52h-57z" fill="#31563a"/>
+    <path d="M171 34h47l5 37h-58z" fill="url(#glass)"/>
+    <path d="M169 75h63" stroke="#779080" stroke-width="3"/>
+    <path d="M229 27v-20" stroke="#1b251d" stroke-width="7" stroke-linecap="round"/>
+    <path d="M61 91h88l-3 35H49z" fill="#3c663d"/>
+    <path d="M45 96h24v28H39z" fill="#223d29"/>
+    <path d="M48 101h16M48 109h16M48 117h16" stroke="#80906d" stroke-width="2"/>
+    <circle cx="101" cy="140" r="39" fill="url(#tyre)"/><circle cx="220" cy="139" r="49" fill="url(#tyre)"/>
+    <circle cx="101" cy="140" r="13" fill="#a18e58"/><circle cx="220" cy="139" r="16" fill="#a18e58"/>
+    <path d="M28 130L7 148l45 2" fill="none" stroke="#71422d" stroke-width="7" stroke-linecap="round"/>
+    <path d="M8 149l-5 24M18 150l-3 27M29 150l-1 28M40 150l2 27M51 150l4 24" stroke="#633b2a" stroke-width="4"/>
+    <path d="M75 84h60" stroke="#83a06e" stroke-width="3" opacity=".55"/>
+    <path d="M132 128h26" stroke="#c5b46d" stroke-width="5"/>
+    <circle cx="49" cy="109" r="5" fill="#e7d598" stroke="none"/>
+  </g>
+</svg>
