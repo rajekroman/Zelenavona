@@ -1,10 +1,10 @@
 export const WORLD = Object.freeze({ width: 1920, height: 1440 });
 
 export const CHLUM = Object.freeze({
-  spawn: { x: 620, y: 1040 },
-  vaclav: { x: 860, y: 930 },
-  search: { x: 1240, y: 760 },
-  finding: { x: 1320, y: 720 },
+  spawn: { x: 820, y: 1050 },
+  vaclav: { x: 1070, y: 930 },
+  search: { x: 1330, y: 765 },
+  finding: { x: 1420, y: 725 },
   speed: 230
 });
 
