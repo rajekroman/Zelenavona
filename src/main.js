@@ -265,11 +265,12 @@ function resetPlayerFromHazard(message) {
   showToast(message);
 }
 
-function updateHazard(dt) {
-  state.hazardCooldown = Math.max(0, state.hazardCooldown - dt);
+function updateHazard(simDt, realDt = simDt) {
+  const hazardDt = Math.min(.25, Math.max(0, realDt));
+  state.hazardCooldown = Math.max(0, state.hazardCooldown - hazardDt);
 
   if (tractor) {
-    tractor.update(dt);
+    tractor.update(simDt);
     if (state.hazardCooldown <= 0 && tractor.collides(state.player, 58)) {
       resetPlayerFromHazard("Pozor na traktor — vrať se k okraji pole.");
     }
@@ -277,7 +278,7 @@ function updateHazard(dt) {
   }
 
   if (forestPressure) {
-    const result = forestPressure.update(state.player, level.npc, dt);
+    const result = forestPressure.update(state.player, level.npc, hazardDt);
     state.forestPressure = result.value;
     state.inRiskZone = result.inRisk;
     if (state.hazardCooldown <= 0 && result.caught && state.step > 0 && !state.completed) {
@@ -288,7 +289,9 @@ function updateHazard(dt) {
 
 let last = performance.now();
 function frame(now) {
-  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  const elapsed = Math.max(0, (now - last) / 1000);
+  const dt = Math.min(.05, elapsed);
+  last = now;
   if (!state.paused) {
     const move = movementVector();
     state.player.moving = Math.hypot(move.x, move.y) > .05;
@@ -299,7 +302,7 @@ function frame(now) {
       clampPlayer(state.player, level);
     }
     playerPose = playerAnimator.update(dt);
-    updateHazard(dt);
+    updateHazard(dt, elapsed);
     camera.update(state.player, viewport, dt);
   }
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
