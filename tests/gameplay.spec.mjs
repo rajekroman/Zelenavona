@@ -102,11 +102,12 @@ test("NESMĚŇ risk zone drains KLID and eventually sends the hunter back to the
     runtime.forestPressure.reset();
   });
 
-  await page.waitForTimeout(700);
-  await expect.poll(async () => (await runtime(page)).forestPressure).toBeGreaterThan(10);
-  const calmWidth = await page.locator("#calmFill").evaluate(node => parseFloat(getComputedStyle(node).width));
-  const calmTrackWidth = await page.locator("#calmFill").evaluate(node => parseFloat(getComputedStyle(node.parentElement).width));
-  expect(calmWidth).toBeLessThan(calmTrackWidth);
+  await expect.poll(async () => (await runtime(page)).forestPressure, { timeout: 3000 }).toBeGreaterThan(10);
+  await expect.poll(async () => page.locator("#calmFill").evaluate(node => {
+    const width = parseFloat(getComputedStyle(node).width);
+    const trackWidth = parseFloat(getComputedStyle(node.parentElement).width);
+    return trackWidth > 0 ? width / trackWidth : 1;
+  }), { timeout: 3000 }).toBeLessThan(.95);
 
   await expect.poll(async () => {
     const current = await runtime(page);
