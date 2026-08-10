@@ -4,7 +4,7 @@ const iphone13 = devices["iPhone 13"];
 
 export default defineConfig({
   testDir: "./tests",
-  testMatch: /visual\.spec\.mjs$/,
+  testMatch: /(visual|gameplay)\.spec\.mjs$/,
   fullyParallel: false,
   workers: 1,
   retries: 0,
