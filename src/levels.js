@@ -73,6 +73,26 @@ export const LEVELS = Object.freeze({
       { step: 1, target: "search", radius: 150, kind: "search", label: "PROHLÉDNOUT" },
       { step: 2, target: "finding", radius: 110, kind: "collect", label: "SEBRAT" }
     ]
+  }),
+  slavie: Object.freeze({
+    id: "slavie",
+    number: 4,
+    label: "SLÁVIE",
+    title: "Slávie",
+    plate: "./assets/slavie/slavie-v7-plate.svg",
+    foreground: "./assets/slavie/slavie-v7-foreground.svg",
+    spawn: { x: 520, y: 1100 },
+    npc: { id: "organizer", x: 805, y: 980 },
+    search: { x: 1200, y: 875 },
+    finding: { x: 1470, y: 820 },
+    speed: 224,
+    minY: 360,
+    objectives: ["Promluv s pořadatelem", "Najdi stánek s vltavíny", "Prověř pravost kamene", "Slávie dokončena"],
+    actions: [
+      { step: 0, target: "npc", radius: 110, kind: "talk", label: "MLUVIT" },
+      { step: 1, target: "search", radius: 150, kind: "search", label: "PROHLÉDNOUT" },
+      { step: 2, target: "finding", radius: 110, kind: "collect", label: "OVĚŘIT" }
+    ]
   })
 });
 
