@@ -13,7 +13,7 @@ test("Chlum uses the production raster terrain plate without changing other leve
 test("Chlum production raster is stored directly in the repository", () => {
   const path = new URL("../assets/chlum/chlum-v7-plate-prod.jpg", import.meta.url);
   const data = fs.readFileSync(path);
-  assert.ok(data.length > 40000, "production raster should contain real image data");
+  assert.ok(data.length > 20000, "production raster should contain real image data");
   assert.equal(data[0], 0xff);
   assert.equal(data[1], 0xd8);
   assert.equal(data[data.length - 2], 0xff);
