@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1440" viewBox="0 0 1920 1440">
+<defs>
+  <linearGradient id="canopy" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#17281f"/><stop offset=".38" stop-color="#2b4130"/><stop offset=".72" stop-color="#53604d"/><stop offset="1" stop-color="#73745e"/></linearGradient>
+  <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#57604a"/><stop offset=".28" stop-color="#414a37"/><stop offset=".63" stop-color="#30372b"/><stop offset="1" stop-color="#20251f"/></linearGradient>
+  <linearGradient id="light" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#eee6b8" stop-opacity=".52"/><stop offset=".55" stop-color="#ddd59d" stop-opacity=".18"/><stop offset="1" stop-color="#d8d8a5" stop-opacity="0"/></linearGradient>
+  <linearGradient id="bank" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#c09a66"/><stop offset=".28" stop-color="#977648"/><stop offset=".58" stop-color="#735838"/><stop offset="1" stop-color="#443927"/></linearGradient>
+  <linearGradient id="bark" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#28251f"/><stop offset=".25" stop-color="#4f4332"/><stop offset=".55" stop-color="#67563f"/><stop offset=".82" stop-color="#3e3529"/><stop offset="1" stop-color="#211f1a"/></linearGradient>
+  <radialGradient id="wet"><stop stop-color="#9ca6a0" stop-opacity=".34"/><stop offset=".62" stop-color="#66736b" stop-opacity=".22"/><stop offset="1" stop-color="#354139" stop-opacity="0"/></radialGradient>
+  <filter id="blur"><feGaussianBlur stdDeviation="14"/></filter>
+  <filter id="shadow"><feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#0d120d" flood-opacity=".5"/></filter>
+  <filter id="grain" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="3" seed="9" result="noise"/>
+    <feColorMatrix in="noise" type="saturate" values="0" result="mono"/>
+    <feComponentTransfer in="mono" result="soft"><feFuncA type="table" tableValues="0 .12"/></feComponentTransfer>
+    <feBlend in="SourceGraphic" in2="soft" mode="multiply"/>
+  </filter>
+  <filter id="moss"><feTurbulence type="fractalNoise" baseFrequency=".045" numOctaves="2" seed="15" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="18"/></filter>
+</defs>
+
+<rect width="1920" height="1440" fill="url(#canopy)"/>
+<g opacity=".58" filter="url(#blur)" fill="#14251b">
+  <path d="M0 0h1920v420c-170 36-282 3-430 38-183 43-323 5-485 46-168 43-305-15-472 22-181 40-328 1-533 34z"/>
+</g>
+<g opacity=".9">
+  <path d="M0 335C150 290 278 308 400 354c146-73 292-74 435-10 160-66 330-69 482 5 181-75 367-66 603 24v215H0z" fill="#29412e"/>
+  <g fill="#193022">
+    <circle cx="80" cy="360" r="105"/><circle cx="240" cy="328" r="122"/><circle cx="455" cy="360" r="126"/><circle cx="680" cy="330" r="132"/><circle cx="930" cy="350" r="128"/><circle cx="1170" cy="325" r="138"/><circle cx="1435" cy="352" r="131"/><circle cx="1685" cy="326" r="141"/><circle cx="1875" cy="355" r="118"/>
+  </g>
+  <g fill="#416044" opacity=".62">
+    <circle cx="150" cy="430" r="78"/><circle cx="535" cy="426" r="86"/><circle cx="830" cy="415" r="79"/><circle cx="1320" cy="425" r="88"/><circle cx="1595" cy="414" r="82"/>
+  </g>
+</g>
+
+<path d="M0 458C332 427 645 440 957 470c315-39 636-41 963 2V1440H0z" fill="url(#floor)" filter="url(#grain)"/>
+
+<!-- winding damp trail -->
+<path d="M570 1440C636 1237 706 1090 811 956c121-153 247-270 282-442 76 77 88 170 48 265-44 106-143 203-204 309-63 108-96 230-111 352z" fill="#615a44" opacity=".5"/>
+<path d="M672 1440C714 1262 790 1118 874 1001c96-133 188-269 219-460" fill="none" stroke="#958366" stroke-width="16" opacity=".22"/>
+<path d="M702 1440C745 1264 814 1140 896 1028" fill="none" stroke="#35382e" stroke-width="10" opacity=".42"/>
+
+<!-- wet ground -->
+<g fill="url(#wet)">
+  <ellipse cx="330" cy="1035" rx="200" ry="76"/><ellipse cx="1035" cy="1160" rx="260" ry="96"/><ellipse cx="1480" cy="1040" rx="230" ry="84"/><ellipse cx="690" cy="1255" rx="190" ry="66"/>
+</g>
+<g fill="#aab1aa" opacity=".17">
+  <path d="M170 1040c80-24 190-21 276 8-78 17-203 19-276-8z"/><path d="M910 1162c120-31 253-25 360 8-111 25-264 26-360-8z"/><path d="M1360 1042c103-28 215-22 300 7-92 22-220 22-300-7z"/>
+</g>
+
+<!-- exposed profile -->
+<g filter="url(#shadow)">
+  <path d="M1190 616C1305 569 1466 577 1608 646l-44 286c-115-34-255-39-373 14z" fill="url(#bank)"/>
+  <path d="M1208 671c126-38 254-38 384 14" fill="none" stroke="#d7bd86" stroke-width="18" opacity=".78"/>
+  <path d="M1217 724c127-40 253-36 368 12" fill="none" stroke="#6b5031" stroke-width="30" opacity=".88"/>
+  <path d="M1228 789c126-34 240-30 344 10" fill="none" stroke="#c7a66d" stroke-width="14" opacity=".8"/>
+  <path d="M1233 842c122-27 228-22 329 13" fill="none" stroke="#725839" stroke-width="24" opacity=".72"/>
+  <g fill="#403b30">
+    <circle cx="1260" cy="701" r="9"/><circle cx="1318" cy="752" r="13"/><circle cx="1370" cy="690" r="7"/><circle cx="1434" cy="808" r="12"/><circle cx="1512" cy="744" r="8"/><circle cx="1540" cy="860" r="14"/><circle cx="1288" cy="864" r="8"/>
+  </g>
+  <g fill="#a78655" opacity=".8"><circle cx="1347" cy="731" r="5"/><circle cx="1470" cy="777" r="6"/><circle cx="1515" cy="823" r="5"/></g>
+</g>
+
+<!-- midground trunks -->
+<g filter="url(#shadow)" stroke="#201e19" stroke-width="6">
+  <path d="M70 0C72 250 90 540 110 954c21 11 75 11 104 0C190 590 192 272 184 0z" fill="url(#bark)"/>
+  <path d="M325 0c-2 238 4 490 26 821 29 13 87 12 119-2 6-312 13-566 3-819z" fill="url(#bark)"/>
+  <path d="M642 0c5 201 16 449 42 785 30 15 90 16 125-2 7-303 5-555-3-783z" fill="url(#bark)"/>
+  <path d="M1011 0c4 188 5 401 29 651 31 17 91 15 123-1 1-264 3-475-5-650z" fill="url(#bark)"/>
+  <path d="M1587 0c7 222 3 492-18 862 33 19 102 19 139 0 23-363 35-637 29-862z" fill="url(#bark)"/>
+  <path d="M1808 0c0 233 10 546 38 1010 24 16 72 18 101 3 10-443 6-776-9-1013z" fill="url(#bark)"/>
+</g>
+
+<!-- bark fissures -->
+<g fill="none" stroke="#8a7351" stroke-width="5" opacity=".32">
+  <path d="M132 85l-12 190 24 180-20 210 18 206M390 70l15 170-20 185 22 184-18 155M705 55l17 182-20 186 22 169M1069 50l-10 170 19 190-15 180M1647 40l16 210-20 225 22 238M1877 95l16 230-18 240 22 260"/>
+</g>
+
+<!-- roots -->
+<g fill="none" stroke="#3a3125" stroke-linecap="round">
+  <path d="M150 936C232 978 310 1036 390 1125M151 936C88 995 43 1052 0 1138" stroke-width="34"/>
+  <path d="M382 812c-72 39-132 82-188 138M395 814c78 38 145 85 207 149" stroke-width="25"/>
+  <path d="M713 775c-90 47-165 106-234 180M720 780c90 41 158 94 220 170" stroke-width="29"/>
+  <path d="M1635 850c-122 62-218 142-313 246M1638 856c109 50 189 122 282 223" stroke-width="38"/>
+  <path d="M1876 1005c-70 34-126 79-177 132" stroke-width="28"/>
+</g>
+
+<!-- moss, stones, decaying wood -->
+<g fill="#58734b" opacity=".86" filter="url(#moss)">
+  <ellipse cx="230" cy="1000" rx="160" ry="63"/><ellipse cx="655" cy="1020" rx="205" ry="74"/><ellipse cx="1075" cy="1110" rx="225" ry="78"/><ellipse cx="1635" cy="1000" rx="195" ry="71"/><ellipse cx="480" cy="1284" rx="235" ry="88"/><ellipse cx="1370" cy="1280" rx="190" ry="67"/>
+</g>
+<g fill="#777567" stroke="#3a3b34" stroke-width="4" opacity=".9">
+  <ellipse cx="435" cy="960" rx="27" ry="18"/><ellipse cx="515" cy="1115" rx="19" ry="13"/><ellipse cx="1045" cy="980" rx="31" ry="20"/><ellipse cx="1170" cy="1240" rx="24" ry="15"/><ellipse cx="1500" cy="1120" rx="28" ry="17"/><ellipse cx="1705" cy="930" rx="18" ry="12"/>
+</g>
+<path d="M250 1190c145-58 286-46 419-8" fill="none" stroke="#4a3a29" stroke-width="34" stroke-linecap="round" opacity=".8"/>
+<path d="M268 1184c120-36 228-30 332-5" fill="none" stroke="#7d6040" stroke-width="8" stroke-linecap="round" opacity=".44"/>
+
+<!-- fern masses -->
+<g stroke="#78935d" stroke-width="9" stroke-linecap="round" fill="none" opacity=".92">
+  <path d="M250 1180q-58-103-150-151M250 1180q18-120 105-196M250 1180q-4-105 17-199M250 1180q54-85 127-111"/>
+  <path d="M890 1185q-72-119-165-168M890 1185q25-134 122-208M890 1185q-8-120 26-211M890 1185q62-94 151-126"/>
+  <path d="M1495 1115q-57-107-148-157M1495 1115q23-121 108-196M1495 1115q-4-111 27-196M1495 1115q63-85 134-109"/>
+</g>
+<g stroke="#a4b67a" stroke-width="3" opacity=".55">
+  <path d="M215 1142l-64-73M272 1132l64-87M850 1140l-83-89M928 1136l81-103M1455 1074l-67-75M1530 1070l72-95"/>
+</g>
+
+<!-- shafts and atmospheric dust -->
+<path d="M820 0h390l-232 1040-390 160z" fill="url(#light)" opacity=".72"/>
+<path d="M1370 0h230l-56 850-286 150z" fill="url(#light)" opacity=".34"/>
+<g fill="#e8dfab" opacity=".24">
+  <circle cx="875" cy="430" r="5"/><circle cx="930" cy="520" r="3"/><circle cx="1010" cy="610" r="4"/><circle cx="1095" cy="450" r="3"/><circle cx="1450" cy="520" r="4"/><circle cx="1515" cy="610" r="3"/>
+</g>
+
+<!-- dense leaf litter -->
+<g fill="#9c7c4a" opacity=".48">
+  <ellipse cx="210" cy="860" rx="9" ry="3" transform="rotate(26 210 860)"/><ellipse cx="320" cy="930" rx="7" ry="3" transform="rotate(-38 320 930)"/><ellipse cx="450" cy="1180" rx="10" ry="3" transform="rotate(18 450 1180)"/><ellipse cx="585" cy="1070" rx="8" ry="3" transform="rotate(-24 585 1070)"/><ellipse cx="735" cy="1260" rx="9" ry="3"/><ellipse cx="965" cy="1310" rx="8" ry="3" transform="rotate(35 965 1310)"/><ellipse cx="1125" cy="1040" rx="9" ry="3"/><ellipse cx="1295" cy="1180" rx="10" ry="3" transform="rotate(-28 1295 1180)"/><ellipse cx="1460" cy="980" rx="8" ry="3" transform="rotate(22 1460 980)"/><ellipse cx="1630" cy="1215" rx="9" ry="3" transform="rotate(-32 1630 1215)"/><ellipse cx="1780" cy="1085" rx="7" ry="3"/>
+</g>
+</svg>

@@ -10,15 +10,15 @@
 </head>
 <body>
   <main id="app">
-    <canvas id="game" aria-label="Herní plocha Chlum"></canvas>
+    <canvas id="game" aria-label="Herní plocha"></canvas>
     <canvas id="foreground" aria-hidden="true"></canvas>
 
     <section id="hud" aria-live="polite">
       <div class="mission-card">
-        <span class="mission-number">1</span>
+        <span id="missionNumber" class="mission-number">1</span>
         <div>
-          <small>CHLUM</small>
-          <strong id="objective">Promluv s Václavem</strong>
+          <small id="levelLabel">CHLUM</small>
+          <strong id="objective">Načítám úkol…</strong>
         </div>
       </div>
       <div class="calm-card"><span>KLID</span><i><em id="calmFill"></em></i></div>
@@ -30,9 +30,9 @@
       <button id="actionButton" class="action-button" type="button" aria-label="Akce"><span>●</span><small id="actionLabel">AKCE</small></button>
     </section>
 
-    <div id="prompt" class="prompt hidden"><span>●</span><strong id="promptText">MLUVIT</strong></div>
+    <div id="prompt" class="prompt hidden"><span>●</span><strong id="promptText">AKCE</strong></div>
     <div id="toast" class="toast hidden"></div>
-    <div id="loading" class="loading"><strong>CHLUM</strong><span>Načítám lokalitu…</span></div>
+    <div id="loading" class="loading"><strong id="loadingLabel">LOKALITA</strong><span>Načítám lokalitu…</span></div>
   </main>
   <script type="module" src="./src/main.js"></script>
   <script type="module" src="./src/foregroundLayer.js"></script>

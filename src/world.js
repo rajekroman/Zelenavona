@@ -1,17 +1,13 @@
-export const WORLD = Object.freeze({ width: 1920, height: 1440 });
+import { LEVELS, WORLD, resolveLevel } from "./levels.js";
 
-export const CHLUM = Object.freeze({
-  spawn: { x: 820, y: 1050 },
-  vaclav: { x: 1070, y: 930 },
-  search: { x: 1330, y: 765 },
-  finding: { x: 1420, y: 725 },
-  speed: 230
-});
+export { WORLD, LEVELS, resolveLevel };
+export const CHLUM = LEVELS.chlum;
+export const NESMEN = LEVELS.nesmen;
 
-export function clampPlayer(player) {
+export function clampPlayer(player, level = CHLUM) {
   const margin = 70;
   player.x = Math.max(margin, Math.min(WORLD.width - margin, player.x));
-  player.y = Math.max(430, Math.min(WORLD.height - margin, player.y));
+  player.y = Math.max(level.minY ?? margin, Math.min(WORLD.height - margin, player.y));
   return player;
 }
 
@@ -19,16 +15,19 @@ export function distance(a, b) {
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
-export function availableAction(state) {
-  if (state.step === 0 && distance(state.player, CHLUM.vaclav) < 100) return { kind: "talk", label: "MLUVIT" };
-  if (state.step === 1 && distance(state.player, CHLUM.search) < 135) return { kind: "search", label: "HLEDAT" };
-  if (state.step === 2 && distance(state.player, CHLUM.finding) < 95) return { kind: "collect", label: "SEBRAT" };
-  return null;
+function targetPoint(level, target) {
+  if (target === "npc") return level.npc;
+  return level[target] ?? null;
 }
 
-export function objectiveForStep(step) {
-  if (step === 0) return "Promluv s Václavem";
-  if (step === 1) return "Prohledej mokré brázdy";
-  if (step === 2) return "Seber nalezený vltavín";
-  return "Chlum dokončen";
+export function availableAction(state, level = CHLUM) {
+  const rule = level.actions.find(action => action.step === state.step);
+  if (!rule) return null;
+  const target = targetPoint(level, rule.target);
+  if (!target || distance(state.player, target) >= rule.radius) return null;
+  return { kind: rule.kind, label: rule.label };
+}
+
+export function objectiveForStep(step, level = CHLUM) {
+  return level.objectives[Math.min(step, level.objectives.length - 1)] ?? level.objectives.at(-1);
 }
