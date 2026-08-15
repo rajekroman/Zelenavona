@@ -1,5 +1,16 @@
 const TAU = Math.PI * 2;
 
+const DIRECTION_VECTOR = Object.freeze({
+  east: Object.freeze({ x: 1, y: 0 }),
+  "south-east": Object.freeze({ x: Math.SQRT1_2, y: Math.SQRT1_2 }),
+  south: Object.freeze({ x: 0, y: 1 }),
+  "south-west": Object.freeze({ x: -Math.SQRT1_2, y: Math.SQRT1_2 }),
+  west: Object.freeze({ x: -1, y: 0 }),
+  "north-west": Object.freeze({ x: -Math.SQRT1_2, y: -Math.SQRT1_2 }),
+  north: Object.freeze({ x: 0, y: -1 }),
+  "north-east": Object.freeze({ x: Math.SQRT1_2, y: -Math.SQRT1_2 })
+});
+
 export const ACTOR_STATE = Object.freeze({
   IDLE: "idle",
   WALK: "walk",
@@ -54,15 +65,20 @@ export class ActorAnimator {
 
   pose() {
     const walkPhase = this.state === ACTOR_STATE.WALK ? Math.sin(this.time * 11) : 0;
+    const gait = DIRECTION_VECTOR[this.direction] ?? DIRECTION_VECTOR.south;
     const searchPhase = this.state === ACTOR_STATE.SEARCH ? Math.sin(Math.min(1, this.time / .65) * Math.PI) : 0;
     const pickupPhase = this.state === ACTOR_STATE.PICKUP ? Math.sin(Math.min(1, this.time / .65) * Math.PI) : 0;
     return Object.freeze({
       state: this.state,
       direction: this.direction,
+      gaitX: gait.x,
+      gaitY: gait.y,
+      stepPhase: walkPhase,
       bob: Math.abs(walkPhase) * 2.3,
       stride: walkPhase * 6,
-      legSwing: walkPhase * .24,
-      bodySway: walkPhase * -.035,
+      legSwing: gait.x === 0 ? 0 : walkPhase * .18 * Math.abs(gait.x),
+      legDepth: gait.y === 0 ? 0 : walkPhase * gait.y,
+      bodySway: gait.x === 0 ? 0 : walkPhase * -.028 * Math.abs(gait.x),
       breathe: Math.sin(this.time * 2.4) * .012,
       lean: searchPhase * 0.18 + pickupPhase * 0.28,
       reach: searchPhase * 8 + pickupPhase * 14,

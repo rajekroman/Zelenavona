@@ -26,8 +26,23 @@ test("walk pose produces deterministic motion", () => {
   const pose = animator.update(.1);
   assert.equal(pose.state, ACTOR_STATE.WALK);
   assert.equal(pose.direction, "south");
+  assert.equal(pose.gaitX, 0);
+  assert.equal(pose.gaitY, 1);
   assert.ok(Math.abs(pose.stride) > 0);
+  assert.equal(pose.legSwing, 0);
+  assert.ok(Math.abs(pose.legDepth) > 0);
+  assert.equal(pose.bodySway, 0);
+});
+
+test("east-west gait keeps a restrained lateral swing without depth stride", () => {
+  const animator = new ActorAnimator();
+  animator.setMovement(-1, 0);
+  const pose = animator.update(.1);
+  assert.equal(pose.direction, "west");
+  assert.equal(pose.gaitX, -1);
+  assert.equal(pose.gaitY, 0);
   assert.ok(Math.abs(pose.legSwing) > 0);
+  assert.equal(pose.legDepth, 0);
   assert.ok(Math.abs(pose.bodySway) > 0);
 });
 

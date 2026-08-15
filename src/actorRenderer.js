@@ -13,7 +13,7 @@ export class ActorRenderer {
     this.assets = new Map();
     this.ready = false;
     this.animationFrame = {
-      character: { state: "idle", legSwing: 0, breathe: 0, crouch: 0 },
+      character: { state: "idle", direction: "south", legSwing: 0, legDepth: 0, breathe: 0, crouch: 0 },
       tractor: { wheelPhase: 0, enginePhase: 0 }
     };
   }
@@ -51,14 +51,20 @@ export class ActorRenderer {
     const halfWidth = width / 2;
     const legHeight = height * (1 - legTopRatio);
     const swing = pose?.legSwing ?? 0;
+    const depth = pose?.legDepth ?? 0;
+    const stepPhase = pose?.stepPhase ?? 0;
 
-    const drawLeg = (right, angle) => {
+    const drawLeg = (right, angle, depthPhase) => {
       const sourceX = right ? halfSourceWidth : 0;
       const destinationX = right ? 0 : -halfWidth;
       const pivotX = right ? width * .12 : -width * .12;
+      const liftPhase = Math.max(0, right ? -stepPhase : stepPhase);
+      const verticalOffset = depthPhase * height * .018 - liftPhase * height * .012;
+      const depthScale = 1 + depthPhase * .045;
       ctx.save();
-      ctx.translate(pivotX, hipY);
+      ctx.translate(pivotX, hipY + verticalOffset);
       ctx.rotate(angle);
+      ctx.scale(1, depthScale);
       ctx.drawImage(
         image,
         sourceX, sourceHeight * legTopRatio, halfSourceWidth, sourceHeight * (1 - legTopRatio),
@@ -67,8 +73,8 @@ export class ActorRenderer {
       ctx.restore();
     };
 
-    drawLeg(false, swing);
-    drawLeg(true, -swing);
+    drawLeg(false, swing, depth);
+    drawLeg(true, -swing, -depth);
 
     const breathe = pose?.breathe ?? 0;
     const bodyPivotY = -height + height * .62;
@@ -146,7 +152,9 @@ export class ActorRenderer {
       this.drawArticulatedCharacter(image, width, height, pose, lean);
       Object.assign(this.animationFrame.character, {
         state: pose.state,
+        direction: pose.direction,
         legSwing: pose.legSwing,
+        legDepth: pose.legDepth,
         breathe: pose.breathe,
         crouch: pose.crouch
       });

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { ActorRenderer } from "../src/actorRenderer.js";
 
 function recordingContext() {
-  const calls = { drawImage: [], rotate: [], arc: [], lineTo: [] };
+  const calls = { drawImage: [], rotate: [], translate: [], scale: [], arc: [], lineTo: [] };
   return {
     calls,
     save() {},
@@ -11,8 +11,8 @@ function recordingContext() {
     beginPath() {},
     fill() {},
     stroke() {},
-    translate() {},
-    scale() {},
+    translate(...args) { calls.translate.push(args); },
+    scale(...args) { calls.scale.push(args); },
     moveTo(...args) { calls.lineTo.push(args); },
     lineTo(...args) { calls.lineTo.push(args); },
     ellipse() {},
@@ -39,8 +39,13 @@ test("walking hunter is rendered as independently articulated body layers", () =
     facingX: 1,
     pose: {
       state: "walk",
+      direction: "east",
+      gaitX: 1,
+      gaitY: 0,
+      stepPhase: 1,
       bob: 1,
       legSwing: .2,
+      legDepth: 0,
       bodySway: -.03,
       breathe: .01,
       lean: 0,
@@ -54,6 +59,38 @@ test("walking hunter is rendered as independently articulated body layers", () =
   assert.ok(context.calls.rotate.includes(-.2));
   assert.equal(renderer.animationFrame.character.state, "walk");
   assert.equal(renderer.animationFrame.character.legSwing, .2);
+});
+
+test("north-south gait uses perspective depth without sideways leg rotation", () => {
+  const context = recordingContext();
+  const renderer = rendererWith(context);
+  renderer.assets.set("hunter", { naturalWidth: 720, naturalHeight: 1040 });
+
+  renderer.draw("hunter", { x: 300, y: 400 }, {
+    facingX: 0,
+    pose: {
+      state: "walk",
+      direction: "north",
+      gaitX: 0,
+      gaitY: -1,
+      stepPhase: 1,
+      bob: 1,
+      legSwing: 0,
+      legDepth: -1,
+      bodySway: 0,
+      breathe: 0,
+      lean: 0,
+      reach: 0,
+      crouch: 0
+    }
+  });
+
+  assert.equal(context.calls.rotate.filter(angle => Math.abs(angle) > 1e-9).length, 0);
+  const legScales = context.calls.scale.slice(1, 3).map(([, y]) => y);
+  assert.ok(legScales.some(value => value < 1));
+  assert.ok(legScales.some(value => value > 1));
+  assert.equal(renderer.animationFrame.character.direction, "north");
+  assert.equal(renderer.animationFrame.character.legDepth, -1);
 });
 
 test("animated tractor consumes wheel and engine phases during rendering", () => {
