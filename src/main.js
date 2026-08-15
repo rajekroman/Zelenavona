@@ -68,12 +68,12 @@ plate.onload = () => { plateReady = true; finishLoading(); };
 plate.onerror = () => loading.classList.add("hidden");
 plate.src = level.plate;
 actorRenderer.load({
-  hunter: "./assets/actors/hunter-v7.svg",
-  vaclav: "./assets/actors/vaclav-v7.svg",
+  hunter: level.id === "chlum" ? "./assets/actors/hunter-v7-prod.png" : "./assets/actors/hunter-v7.svg",
+  vaclav: level.id === "chlum" ? "./assets/actors/vaclav-v7-prod.png" : "./assets/actors/vaclav-v7.svg",
   forester: "./assets/actors/forester-v7.svg",
   pitkeeper: "./assets/actors/pitkeeper-v7.svg",
   organizer: "./assets/actors/organizer-v7.svg",
-  tractor: "./assets/actors/tractor-v7.svg"
+  tractor: level.id === "chlum" ? "./assets/actors/tractor-v7-prod.png" : "./assets/actors/tractor-v7.svg"
 }).then(() => { actorAssetsReady = true; finishLoading(); }).catch(error => {
   console.warn(error);
   loading.classList.add("hidden");
