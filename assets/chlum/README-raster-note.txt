@@ -1,1 +1,0 @@
-Raster production candidate is being prepared for repository upload via Git Data API. This placeholder records the intended transition from SVG baseline to stable in-repo raster asset; no runtime URL dependency is permitted.
