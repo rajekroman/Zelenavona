@@ -6,10 +6,14 @@ export class TractorPatrol {
     this.y = y;
     this.speed = speed;
     this.direction = 1;
+    this.wheelPhase = 0;
+    this.enginePhase = 0;
   }
 
   update(dt) {
-    this.x += this.direction * this.speed * Math.max(0, dt);
+    const step = Math.max(0, dt);
+    const previousX = this.x;
+    this.x += this.direction * this.speed * step;
     if (this.x >= this.maxX) {
       this.x = this.maxX;
       this.direction = -1;
@@ -17,6 +21,8 @@ export class TractorPatrol {
       this.x = this.minX;
       this.direction = 1;
     }
+    this.wheelPhase = (this.wheelPhase + (this.x - previousX) / 32) % (Math.PI * 2);
+    this.enginePhase = (this.enginePhase + step * 8.5) % (Math.PI * 2);
     return this;
   }
 

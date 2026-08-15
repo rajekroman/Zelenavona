@@ -103,6 +103,42 @@ for (const scenario of [
   });
 }
 
+test("CHLUM renders articulated hunter motion and rotating tractor wheels", async ({ page }, testInfo) => {
+  await page.goto("/?level=chlum", { waitUntil: "domcontentloaded" });
+  await expect.poll(async () => (await runtime(page)).ready).toBe(true);
+
+  const initialWheelPhase = await page.evaluate(() => window.__zelenaVlna.actorRenderer.animationFrame.tractor.wheelPhase);
+  await expect.poll(async () => page.evaluate(phase => {
+    const current = window.__zelenaVlna.actorRenderer.animationFrame.tractor.wheelPhase;
+    return Math.abs(current - phase);
+  }, initialWheelPhase), { timeout: 2000 }).toBeGreaterThan(.08);
+
+  await page.keyboard.down("ArrowRight");
+  await expect.poll(async () => page.evaluate(() => {
+    const frame = window.__zelenaVlna.actorRenderer.animationFrame.character;
+    return frame.state === "walk" ? Math.abs(frame.legSwing) : 0;
+  }), { timeout: 2000 }).toBeGreaterThan(.16);
+
+  const motionScreenshot = await page.screenshot({ fullPage: true });
+  const motionTelemetry = await page.evaluate(() => ({
+    character: { ...window.__zelenaVlna.actorRenderer.animationFrame.character },
+    tractor: { ...window.__zelenaVlna.actorRenderer.animationFrame.tractor },
+    player: { ...window.__zelenaVlna.state.player }
+  }));
+  await testInfo.attach(`chlum-animation-${testInfo.project.name}`, {
+    body: motionScreenshot,
+    contentType: "image/png"
+  });
+  await testInfo.attach(`chlum-animation-telemetry-${testInfo.project.name}`, {
+    body: JSON.stringify(motionTelemetry, null, 2),
+    contentType: "application/json"
+  });
+  await page.keyboard.up("ArrowRight");
+
+  await expect.poll(async () => page.evaluate(() => window.__zelenaVlna.actorRenderer.animationFrame.character.state)).toBe("idle");
+  await expect.poll(async () => page.evaluate(() => Math.abs(window.__zelenaVlna.actorRenderer.animationFrame.character.breathe))).toBeGreaterThan(.003);
+});
+
 test("NESMĚŇ risk zone drains KLID and eventually sends the hunter back to the forest edge", async ({ page }) => {
   await page.goto("/?level=nesmen", { waitUntil: "domcontentloaded" });
   await expect.poll(async () => (await runtime(page)).ready).toBe(true);

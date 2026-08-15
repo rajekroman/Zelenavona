@@ -18,3 +18,16 @@ test("tractor collision uses a compact actor radius", () => {
   assert.equal(tractor.collides({ x: 180, y: 410 }, 40), true);
   assert.equal(tractor.collides({ x: 230, y: 410 }, 40), false);
 });
+
+test("tractor movement advances wheel rotation and engine animation", () => {
+  const tractor = new TractorPatrol({ minX: 0, maxX: 500, speed: 64 });
+  tractor.update(.5);
+  assert.equal(tractor.x, 32);
+  assert.equal(tractor.wheelPhase, 1);
+  assert.ok(tractor.enginePhase > 0);
+
+  tractor.direction = -1;
+  const previousPhase = tractor.wheelPhase;
+  tractor.update(.25);
+  assert.ok(tractor.wheelPhase < previousPhase, "wheel rotation must reverse with travel direction");
+});
