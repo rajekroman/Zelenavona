@@ -145,6 +145,35 @@ test("CHLUM renders articulated hunter motion and rotating tractor wheels", asyn
 
   await expect.poll(async () => page.evaluate(() => window.__zelenaVlna.actorRenderer.animationFrame.character.state)).toBe("idle");
   await expect.poll(async () => page.evaluate(() => Math.abs(window.__zelenaVlna.actorRenderer.animationFrame.character.breathe))).toBeGreaterThan(.003);
+
+  await page.keyboard.down("ArrowUp");
+  await expect.poll(async () => page.evaluate(() => {
+    const runtime = window.__zelenaVlna;
+    const frame = runtime.actorRenderer.animationFrame.character;
+    const validDepthStep = frame.state === "walk"
+      && frame.direction === "north"
+      && Math.abs(frame.legSwing) < 1e-9
+      && Math.abs(frame.legDepth) > .7;
+    if (validDepthStep) runtime.state.paused = true;
+    return validDepthStep;
+  }), { timeout: 2000 }).toBe(true);
+
+  const depthScreenshot = await page.screenshot({ fullPage: true });
+  const depthTelemetry = await page.evaluate(() => ({
+    character: { ...window.__zelenaVlna.actorRenderer.animationFrame.character },
+    player: { ...window.__zelenaVlna.state.player }
+  }));
+  await testInfo.attach(`chlum-depth-gait-${testInfo.project.name}`, {
+    body: depthScreenshot,
+    contentType: "image/png"
+  });
+  await testInfo.attach(`chlum-depth-gait-telemetry-${testInfo.project.name}`, {
+    body: JSON.stringify(depthTelemetry, null, 2),
+    contentType: "application/json"
+  });
+  await page.keyboard.up("ArrowUp");
+  await page.evaluate(() => { window.__zelenaVlna.state.paused = false; });
+  await expect.poll(async () => page.evaluate(() => window.__zelenaVlna.actorRenderer.animationFrame.character.state)).toBe("idle");
 });
 
 test("NESMĚŇ risk zone drains KLID and eventually sends the hunter back to the forest edge", async ({ page }) => {
