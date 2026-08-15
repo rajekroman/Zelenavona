@@ -61,8 +61,12 @@ export class ActorAnimator {
       direction: this.direction,
       bob: Math.abs(walkPhase) * 2.3,
       stride: walkPhase * 6,
+      legSwing: walkPhase * .24,
+      bodySway: walkPhase * -.035,
+      breathe: Math.sin(this.time * 2.4) * .012,
       lean: searchPhase * 0.18 + pickupPhase * 0.28,
-      reach: searchPhase * 8 + pickupPhase * 14
+      reach: searchPhase * 8 + pickupPhase * 14,
+      crouch: searchPhase * .045 + pickupPhase * .085
     });
   }
 }

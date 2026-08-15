@@ -150,7 +150,14 @@ function drawPlayer() {
 
 function drawHazard() {
   if (tractor) {
-    actorRenderer.drawSprite("tractor", tractor, { width: 154, height: 98, flipX: tractor.direction < 0, anchorY: .78, shadow: true });
+    actorRenderer.drawSprite("tractor", tractor, {
+      width: 154,
+      height: 98,
+      flipX: tractor.direction < 0,
+      anchorY: .78,
+      shadow: true,
+      animation: { wheelPhase: tractor.wheelPhase, enginePhase: tractor.enginePhase }
+    });
   }
   if (forestPressure && state.inRiskZone) {
     const alpha = Math.min(.22, .05 + state.forestPressure / 650);
