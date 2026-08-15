@@ -14,9 +14,21 @@ import part12 from "../assets/chlum/chlum-v7-plate-prod-base64/part-12.js";
 import part13 from "../assets/chlum/chlum-v7-plate-prod-base64/part-13.js";
 import part14 from "../assets/chlum/chlum-v7-plate-prod-base64/part-14.js";
 import part15 from "../assets/chlum/chlum-v7-plate-prod-base64/part-15.js";
+import part16 from "../assets/chlum/chlum-v7-plate-prod-base64/part-16.js";
+import part17 from "../assets/chlum/chlum-v7-plate-prod-base64/part-17.js";
+import part18 from "../assets/chlum/chlum-v7-plate-prod-base64/part-18.js";
+import part19 from "../assets/chlum/chlum-v7-plate-prod-base64/part-19.js";
+import part20 from "../assets/chlum/chlum-v7-plate-prod-base64/part-20.js";
+import part21 from "../assets/chlum/chlum-v7-plate-prod-base64/part-21.js";
+import part22 from "../assets/chlum/chlum-v7-plate-prod-base64/part-22.js";
+import part23 from "../assets/chlum/chlum-v7-plate-prod-base64/part-23.js";
 
 const MAX_CHUNK_LENGTH = 32_768;
-export const CHLUM_PLATE_CHUNKS = Object.freeze([part00, part01, part02, part03, part04, part05, part06, part07, part08, part09, part10, part11, part12, part13, part14, part15]);
+export const CHLUM_PLATE_CHUNKS = Object.freeze([
+  part00, part01, part02, part03, part04, part05, part06, part07,
+  part08, part09, part10, part11, part12, part13, part14, part15,
+  part16, part17, part18, part19, part20, part21, part22, part23
+]);
 
 export function assembleChlumPlateBase64(chunks = CHLUM_PLATE_CHUNKS) {
   if (!Array.isArray(chunks) || chunks.length < 2) {
@@ -27,7 +39,9 @@ export function assembleChlumPlateBase64(chunks = CHLUM_PLATE_CHUNKS) {
   }
 
   const base64 = chunks.join("");
-  if (base64.length % 4 !== 0 || !base64.startsWith("/9j/") || !base64.endsWith("/9k=")) {
+  const tail = atob(base64.slice(-8));
+  const hasEoi = tail.charCodeAt(tail.length - 2) === 0xff && tail.charCodeAt(tail.length - 1) === 0xd9;
+  if (base64.length % 4 !== 0 || !base64.startsWith("/9j/") || !hasEoi) {
     throw new Error("Chlum raster is not a complete JPEG payload.");
   }
   return base64;

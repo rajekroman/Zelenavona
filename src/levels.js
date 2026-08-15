@@ -9,7 +9,7 @@ export const LEVELS = Object.freeze({
     label: "CHLUM",
     title: "Chlum",
     plate: CHLUM_PLATE,
-    foreground: "./assets/chlum/chlum-v7-foreground.svg",
+    foreground: "./assets/chlum/chlum-v7-foreground-prod.png",
     spawn: { x: 820, y: 1050 },
     npc: { id: "vaclav", x: 1070, y: 930 },
     search: { x: 1330, y: 765 },
