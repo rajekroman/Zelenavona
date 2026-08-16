@@ -56,7 +56,7 @@ export const LEVELS = Object.freeze({
     label: "BESEDNICE",
     title: "Besednice",
     plate: "./assets/besednice/besednice-v7-plate-prod.jpg",
-    foreground: "./assets/besednice/besednice-v7-foreground-prod.png",
+    foreground: null,
     spawn: { x: 470, y: 1110 },
     npc: { id: "pitkeeper", x: 760, y: 1000 },
     search: { x: 1220, y: 825 },

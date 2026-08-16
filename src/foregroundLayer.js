@@ -19,7 +19,15 @@ function resize() {
 
 function ensureSource(runtime) {
   const next = runtime?.level?.foreground;
-  if (!next || next === source) return;
+  if (!next) {
+    if (source !== null || !ready) {
+      source = null;
+      ready = true;
+      window.__zelenaForeground = { ready: true, canvas, source: null };
+    }
+    return;
+  }
+  if (next === source) return;
   source = next;
   ready = false;
   plate.src = source;
@@ -32,7 +40,7 @@ function draw() {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, viewport.width, viewport.height);
 
-  if (ready && runtime?.camera && runtime?.WORLD) {
+  if (ready && source && runtime?.camera && runtime?.WORLD) {
     ctx.save();
     runtime.camera.applyWorldTransform(ctx, viewport);
     ctx.drawImage(plate, 0, 0, runtime.WORLD.width, runtime.WORLD.height);

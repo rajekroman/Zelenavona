@@ -12,7 +12,7 @@ test("Chlum, Nesměň and Besednice use in-repo production art without changing 
   assert.equal(LEVELS.nesmen.plate, "./assets/nesmen/nesmen-v7-plate-prod.jpg");
   assert.equal(LEVELS.nesmen.foreground, "./assets/nesmen/nesmen-v7-foreground-prod.png");
   assert.equal(LEVELS.besednice.plate, "./assets/besednice/besednice-v7-plate-prod.jpg");
-  assert.equal(LEVELS.besednice.foreground, "./assets/besednice/besednice-v7-foreground-prod.png");
+  assert.equal(LEVELS.besednice.foreground, null);
   assert.equal(LEVELS.slavie.plate, "./assets/slavie/slavie-v7-plate.svg");
   assert.equal(LEVELS.slavie.foreground, "./assets/slavie/slavie-v7-foreground.svg");
 });
@@ -117,14 +117,4 @@ test("Nesměň production foreground is a complete transparent PNG asset", () =>
   assert.equal(data[25], 6, "Nesměň foreground must use RGBA color type");
   assert.ok(data.length > 2_000_000, "Nesměň foreground should contain substantial image data");
   assert.ok(data.length < 4_000_000, "Nesměň foreground should stay within its production budget");
-});
-
-test("Besednice production foreground is a complete transparent PNG asset", () => {
-  const data = readFileSync(new URL("../assets/besednice/besednice-v7-foreground-prod.png", import.meta.url));
-  assert.deepEqual([...data.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
-  assert.equal(data.readUInt32BE(16), 1920, "Besednice foreground width");
-  assert.equal(data.readUInt32BE(20), 1440, "Besednice foreground height");
-  assert.equal(data[25], 6, "Besednice foreground must use RGBA color type");
-  assert.ok(data.length > 900_000, "Besednice foreground should contain substantial image data");
-  assert.ok(data.length < 1_400_000, "Besednice foreground should stay within its production budget");
 });
