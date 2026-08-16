@@ -68,7 +68,7 @@ plate.onload = () => { plateReady = true; finishLoading(); };
 plate.onerror = () => loading.classList.add("hidden");
 plate.src = level.plate;
 actorRenderer.load({
-  hunter: level.id === "chlum" || level.id === "nesmen" ? "./assets/actors/hunter-v7-prod.png" : "./assets/actors/hunter-v7.svg",
+  hunter: level.id === "chlum" || level.id === "nesmen" || level.id === "besednice" ? "./assets/actors/hunter-v7-prod.png" : "./assets/actors/hunter-v7.svg",
   vaclav: level.id === "chlum" ? "./assets/actors/vaclav-v7-prod.png" : "./assets/actors/vaclav-v7.svg",
   forester: level.id === "nesmen" ? "./assets/actors/forester-v7-prod.png" : "./assets/actors/forester-v7.svg",
   pitkeeper: level.id === "besednice" ? "./assets/actors/pitkeeper-v7-prod.png" : "./assets/actors/pitkeeper-v7.svg",
